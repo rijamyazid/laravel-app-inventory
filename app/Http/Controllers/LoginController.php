@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Session;
 use App\Admin;
 
 class LoginController extends Controller
@@ -17,33 +18,13 @@ class LoginController extends Controller
         $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
         
         if(!is_null($admin)){
+            Session::put('user', $admin->username);
             
-            $adminRole = $admin->role_id;
+            var_dump($admin->username);
 
-            switch ($adminRole) {
-                case 1:
-                    return redirect('/bidang-sekretariat');
-                    break;
-                case 2:
-                    return redirect('/bidang-adpin');
-                    break;
-                case 3:
-                    return redirect('/bidang-kbkr');
-                    break;
-                case 4:
-                    return redirect('/bidang-kspk');
-                    break;
-                case 5:
-                    return redirect('/bidang-dalduk');
-                    break;
-                case 6:
-                    return redirect('/bidang-latbang');
-                    break;                                                 
-                default:
-                    return redirect('/');
-                    break;
-            }
-
+            $username = Session::get('user');
+            echo $username;
+            // return redirect('/'.$admin->role->role_prefix);
         } else {
             throw ValidationException::withMessages(['username' => 'Username atau password salah']);
         }

@@ -21,13 +21,18 @@ Route::get('/', function () {
 Route::post('/login', 'LoginController@auth');
 
 //Admin Route
-Route::get('/bidang-sekretariat', 'BidangSekretariatController@index');
-Route::get('/bidang-adpin', 'BidangAdpinController@index');
-Route::get('/bidang-kbkr', 'BidangKbkrController@index');
-Route::get('/bidang-kspk', 'BidangKspkController@index');
-Route::get('/bidang-dalduk', 'BidangDaldukController@index');
-Route::get('/bidang-latbang', 'BidangLatbangController@index');
+Route::get('/{role}', 'AdminController@index');
+Route::get('/{role}/folder/{url_path?}/create', 'AdminController@createFolder');
+Route::post('/{role}/folder/{url_path?}/creating', 'AdminController@createFolderProcess');
+Route::get('/BidangAdpin', 'BidangAdpinController@index');
+Route::get('/BidangKbkr', 'BidangKbkrController@index');
+Route::get('/BidangKspk', 'BidangKspkController@index');
+Route::get('/BidangDalduk', 'BidangDaldukController@index');
+Route::get('/BidangLatbang', 'BidangLatbangController@index');
 
-Route::get('admin/{any?}', function($any = ''){
-    dd($any);
-})->where('any', '.*');
+
+Route::get('/{bidang}/folder/{any?}', function($bidang, $any = ''){
+    echo $bidang;
+    echo $any;
+})->where(['bidang' =>'BidangSekretariat|BidangAdpin|BidangKbkr|BidangKspk|BidangDalduk|BidangLatbang', 
+            'any' =>'.*']);
