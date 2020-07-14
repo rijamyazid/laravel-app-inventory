@@ -22,8 +22,9 @@ Route::post('/login', 'LoginController@auth');
 
 //Admin Route
 Route::get('/{role}', 'AdminController@index');
-Route::get('/{role}/folder/{url_path?}/create', 'AdminController@createFolder');
-Route::post('/{role}/folder/{url_path?}/creating', 'AdminController@createFolderProcess');
+Route::get('/{role}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');
+Route::get('/{role}/create/{url_path?}', 'AdminController@createFolder')->where('url_path', '.*');
+Route::post('/{role}/creating/{url_path?}', 'AdminController@createFolderProcess')->where('url_path', '.*');
 Route::get('/BidangAdpin', 'BidangAdpinController@index');
 Route::get('/BidangKbkr', 'BidangKbkrController@index');
 Route::get('/BidangKspk', 'BidangKspkController@index');

@@ -24,7 +24,7 @@ class AdminController extends Controller
 
         $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/')->get();
 
-        return view('admin.table', ['url_path'=> 'root', 'role' => $role_prefix ,'folders' => $folders]);
+        return view('admin.table', ['url_path'=> '', 'role' => $role_prefix ,'folders' => $folders]);
     }
 
     public function createFolder($role_prefix, $url_path=''){
@@ -40,24 +40,28 @@ class AdminController extends Controller
         ]);
 
         $url_path_new = $url_path;
-        if($url_path == 'root'){
+        if($url_path == ''){
             $url_path_new = $request->folder_name;
-        }
-
-        Storage::makeDirectory($base_path.$url_path_new);
-
-        // $username = Session::get('user');
-        // echo $username;
-
-        Folder::create([
-            'name' => $request->folder_name,
-            'url_path' => $url_path_new,
-            'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
-            'created_by' => Session::get('user'),
-            'folder_role' => $role_prefix
+            Storage::makeDirectory($base_path.$url_path_new);
+            Folder::create([
+                'name' => $request->folder_name,
+                'url_path' => $url_path_new,
+                'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
+                'created_by' => Session::get('user'),
+                'folder_role' => $role_prefix
             ]);
-
-        return redirect('/'.$role_prefix);
+            return redirect('/'.$role_prefix.'/folder/'.$url_path_new);
+        } else {
+            Storage::makeDirectory($base_path.$url_path_new.'/'.$request->folder_name);
+            Folder::create([
+                'name' => $request->folder_name,
+                'url_path' => $url_path_new.'/'.$request->folder_name,
+                'parent_path' => self::getFolderPath($role_prefix, $url_path_new.'/'.$request->folder_name),
+                'created_by' => Session::get('user'),
+                'folder_role' => $role_prefix
+            ]);
+            return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/'.$request->folder_name);
+        }
     }
 
     public function getFolderPath($role_prefix, $url_path){
@@ -73,7 +77,8 @@ class AdminController extends Controller
         }
     }
 
-    public function view(){
-        
+    public function view($role_prefix, $url_path=''){
+        $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
+        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders]);
     }
 }
