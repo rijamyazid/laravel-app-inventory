@@ -18,13 +18,13 @@ class LoginController extends Controller
         $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
         
         if(!is_null($admin)){
-            Session::put('user', $admin->username);
+            Session::put('user', $request->username);
             
             var_dump($admin->username);
 
-            $username = Session::get('user');
-            echo $username;
-            // return redirect('/'.$admin->role->role_prefix);
+            // $username = Session::get('user');
+            // echo $username;
+            return redirect('/'.$admin->role->role_prefix);
         } else {
             throw ValidationException::withMessages(['username' => 'Username atau password salah']);
         }

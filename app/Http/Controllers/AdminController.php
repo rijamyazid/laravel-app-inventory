@@ -34,20 +34,20 @@ class AdminController extends Controller
             $url_path_new = $request->folder_name;
         }
 
-        // Storage::makeDirectory($base_path.$url_path_new);
+        Storage::makeDirectory($base_path.$url_path_new);
 
-        $username = Session::get('user');
-        echo $username;
+        // $username = Session::get('user');
+        // echo $username;
 
-        // Folder::create([
-        //     'name' => $request->folder_name,
-        //     'url_path' => $url_path_new,
-        //     'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
-        //     'created_by' => Session::get('user'),
-        //     'folder_role' => $role_prefix
-        //     ]);
+        Folder::create([
+            'name' => $request->folder_name,
+            'url_path' => $url_path_new,
+            'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
+            'created_by' => Session::get('user'),
+            'folder_role' => $role_prefix
+            ]);
 
-        // return redirect('/'.$role_prefix);
+        return redirect('/'.$role_prefix);
     }
 
     public function getFolderPath($role_prefix, $url_path){

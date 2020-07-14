@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Folder extends Model
 {
     protected $table = 'folders';
-    protected $incrementing = false;
+    public $incrementing = false;
     protected $fillable = ['name', 'url_path', 'parent_path', 'created_by', 'folder_role'];
 
     public function admin(){
