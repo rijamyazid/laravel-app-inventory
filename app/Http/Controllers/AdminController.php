@@ -6,11 +6,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use App\Folder;
+use App\Role;
 
 class AdminController extends Controller
 {
 
     public function index($role_prefix){
+
+        if(Session::has('role')){
+            if(Session::get('role') != $role_prefix){
+                return redirect(Session::get('role'));
+            }
+        } else {
+            Session::flush();
+            return redirect('/');
+        }
 
         $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/')->get();
 
@@ -61,5 +71,9 @@ class AdminController extends Controller
         } else {
             return $base_path;
         }
+    }
+
+    public function view(){
+        
     }
 }

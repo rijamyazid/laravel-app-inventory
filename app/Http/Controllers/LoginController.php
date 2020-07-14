@@ -19,6 +19,7 @@ class LoginController extends Controller
         
         if(!is_null($admin)){
             Session::put('user', $request->username);
+            Session::put('role', $admin->role->role_prefix);
             
             var_dump($admin->username);
 

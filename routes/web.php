@@ -31,6 +31,7 @@ Route::get('/BidangDalduk', 'BidangDaldukController@index');
 Route::get('/BidangLatbang', 'BidangLatbangController@index');
 
 
+
 Route::get('/{bidang}/folder/{any?}', function($bidang, $any = ''){
     echo $bidang;
     echo $any;
