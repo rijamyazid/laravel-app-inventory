@@ -76,4 +76,9 @@ class AdminController extends Controller
     public function view(){
         
     }
+
+    public function logout(){
+        Session::flush();
+        return redirect('/');
+    }
 }
