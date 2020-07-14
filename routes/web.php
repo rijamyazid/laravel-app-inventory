@@ -20,6 +20,9 @@ Route::get('/', function () {
 //Login Route
 Route::post('/login', 'LoginController@auth');
 
+//Logout Route
+Route::get('/logout', 'AdminController@logout');
+
 //Admin Route
 Route::get('/{role}', 'AdminController@index');
 Route::get('/{role}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');

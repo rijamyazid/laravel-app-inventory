@@ -1,10 +1,6 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    <br>
-    <a href="{{ url("$role/create/$url_path") }}" class="btn btn-success">Tambah Folder</a>
-    <br>
-    <br>
     <table class="table table-striped">
         <thead>
             <tr>

@@ -81,4 +81,9 @@ class AdminController extends Controller
         $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
         return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders]);
     }
+
+    public function logout(){
+        Session::flush();
+        return redirect('/');
+    }
 }
