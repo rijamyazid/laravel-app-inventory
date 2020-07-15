@@ -50,7 +50,7 @@ class AdminController extends Controller
                 'created_by' => Session::get('user'),
                 'folder_role' => $role_prefix
             ]);
-            return redirect('/'.$role_prefix.'/folder/'.$url_path_new);
+            return redirect('/'.$role_prefix.'/folder/');
         } else {
             Storage::makeDirectory($base_path.$url_path_new.'/'.$request->folder_name);
             Folder::create([
@@ -60,8 +60,29 @@ class AdminController extends Controller
                 'created_by' => Session::get('user'),
                 'folder_role' => $role_prefix
             ]);
-            return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/'.$request->folder_name);
+            return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
         }
+    }
+
+    public function deleteFolder($role_prefix, $folder_id){
+        $tmpFolderLastPath = '';
+
+        $folder = Folder::find($folder_id);
+
+        Storage::deleteDirectory($folder->parent_path.'/'.$folder->url_path);
+        $tmpFolderLastPath = $folder->url_path;
+        $folder->delete();
+        return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+    }
+
+    public function view($role_prefix, $url_path=''){
+        $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
+        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders]);
+    }
+
+    public function logout(){
+        Session::flush();
+        return redirect('/');
     }
 
     public function getFolderPath($role_prefix, $url_path){
@@ -77,13 +98,14 @@ class AdminController extends Controller
         }
     }
 
-    public function view($role_prefix, $url_path=''){
-        $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
-        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders]);
-    }
+    public function deleteUrlPathLast($url_path){
+        if(count((explode('/', $url_path))) > 1){
+            $split = explode('/', $url_path, -1);
+            $merge = implode($split);
 
-    public function logout(){
-        Session::flush();
-        return redirect('/');
+            return $merge;
+        } else {
+            return '';
+        }
     }
 }

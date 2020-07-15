@@ -12,8 +12,10 @@
             @foreach ($folders as $folder)
                 <tr>
                     <td><a href="{{ url("$role/folder/$folder->url_path") }}">{{$folder->name}}</a></td>
-                    <td><a href="#" class="btn btn-primary">Edit</a> <a href="#" class="btn btn-danger">Hapus</a></td>
-                </tr>
+                    <td>
+                        <a href="#" class="btn btn-primary">Edit</a> 
+                        <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>
+                    </tr>
             @endforeach
         </tbody>
     </table>

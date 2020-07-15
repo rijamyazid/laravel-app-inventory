@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-    <form action="/{{$role}}/creating/{{$url_path}}" method="POST">
+    <form action="/{{$role}}/creating/folder/{{$url_path}}" method="POST">
         @csrf
         <div class="form-group">
             <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder">

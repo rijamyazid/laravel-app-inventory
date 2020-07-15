@@ -24,15 +24,11 @@ Route::post('/login', 'LoginController@auth');
 Route::get('/logout', 'AdminController@logout');
 
 //Admin Route
-Route::get('/{role}', 'AdminController@index');
-Route::get('/{role}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');
-Route::get('/{role}/create/{url_path?}', 'AdminController@createFolder')->where('url_path', '.*');
-Route::post('/{role}/creating/{url_path?}', 'AdminController@createFolderProcess')->where('url_path', '.*');
-Route::get('/BidangAdpin', 'BidangAdpinController@index');
-Route::get('/BidangKbkr', 'BidangKbkrController@index');
-Route::get('/BidangKspk', 'BidangKspkController@index');
-Route::get('/BidangDalduk', 'BidangDaldukController@index');
-Route::get('/BidangLatbang', 'BidangLatbangController@index');
+Route::get('/{role_prefix}', 'AdminController@index');
+Route::get('/{role_prefix}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');
+Route::get('/{role_prefix}/create/folder/{url_path?}', 'AdminController@createFolder')->where('url_path', '.*');
+Route::post('/{role_prefix}/creating/folder/{url_path?}', 'AdminController@createFolderProcess')->where('url_path', '.*');
+Route::get('/{role_prefix}/delete/folder/{folder_id}', 'AdminController@deleteFolder');
 
 
 
