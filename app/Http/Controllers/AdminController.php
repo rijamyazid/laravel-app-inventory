@@ -69,7 +69,7 @@ class AdminController extends Controller
 
         $folder = Folder::find($folder_id);
 
-        Storage::deleteDirectory($folder->parent_path.'/'.$folder->url_path);
+        Storage::deleteDirectory($folder->parent_path.'/'.$folder->name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
@@ -90,7 +90,7 @@ class AdminController extends Controller
 
         if(count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);
-            $merge = implode($split);
+            $merge = implode('/', $split);
 
             return $base_path.$merge;
         } else {
