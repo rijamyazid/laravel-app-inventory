@@ -9,11 +9,15 @@ class Admin extends Model
     protected $table='admin';
     protected $primaryKey = 'username';
 
+    public function role(){
+        return $this->belongsTo('App\Role');
+    }
+
     public function folders(){
         return $this->hasMany('App\Folder', 'created_by', 'username');
     }
 
-    public function role(){
-        return $this->belongsTo('App\Role');
+    public function files(){
+        return $this->hasMany('App\File', 'created_by', 'username');
     }
 }

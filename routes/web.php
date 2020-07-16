@@ -30,7 +30,9 @@ Route::get('/{role_prefix}/create/folder/{url_path?}', 'AdminController@createFo
 Route::post('/{role_prefix}/creating/folder/{url_path?}', 'AdminController@createFolderProcess')->where('url_path', '.*');
 Route::get('/{role_prefix}/delete/folder/{folder_id}', 'AdminController@deleteFolder');
 
-
+//Files Route
+Route::get('/{role_prefix}/create/files/{url_path?}', 'FilesController@create')->where('url_path', '.*');;
+Route::post('/{role_prefix}/store/files/{url_path?}', 'FilesController@store')->where('url_path', '.*');
 
 Route::get('/{bidang}/folder/{any?}', function($bidang, $any = ''){
     echo $bidang;
