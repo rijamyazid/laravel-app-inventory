@@ -21,7 +21,7 @@
         <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link btn btn-danger" href="/logout">Logout</a>
+                    <a class="btn btn-danger" href="/logout">Logout</a>
                 </li>
             </ul>
         </div>
@@ -36,11 +36,6 @@
             <ul class="navbar nav nav-pills mr-auto">
                 <li class="nav-item">
                     <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
-                </li>
-            </ul>
-            <ul class="navbar nav nav-pills ">
-                <li class="nav-item">
-                    <a class="btn btn-danger" href="/logout">Logout</a>
                 </li>
             </ul>
     </nav>
