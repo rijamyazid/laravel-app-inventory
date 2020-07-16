@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use App\Folder;
+use App\File;
 use App\Role;
 
 class AdminController extends Controller
@@ -23,8 +24,10 @@ class AdminController extends Controller
         }
 
         $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/')->get();
+        $files = File::join('folders', 'folder_id','=', 'folders.id')
+                ->where('parent_path', '=', 'public')->get();
 
-        return view('admin.table', ['url_path'=> '', 'role' => $role_prefix ,'folders' => $folders]);
+        return view('admin.table', ['url_path'=> '', 'role' => $role_prefix ,'folders' => $folders, 'files' => $files]);
     }
 
     public function createFolder($role_prefix, $url_path=''){
@@ -77,7 +80,19 @@ class AdminController extends Controller
 
     public function view($role_prefix, $url_path=''){
         $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
-        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders]);
+
+        if($url_path == ''){
+            $files = File::join('folders', 'folder_id','=', 'folders.id')
+                ->where('parent_path', '=', 'public')
+                ->where('folder_role', $role_prefix)->get();
+            // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
+        } else {
+            $files = File::join('folders', 'folder_id','=', 'folders.id')
+                ->where('url_path', '=', $url_path)->get();
+            // $files = File::with('folders')->where('url_path', $url_path)->get();
+        }
+
+        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders, 'files' => $files]);
     }
 
     public function logout(){

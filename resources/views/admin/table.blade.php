@@ -17,6 +17,14 @@
                         <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>
                     </tr>
             @endforeach
+            @foreach ($files as $file)
+                <tr>
+                    <td><a href="#">{{$file->filename}}</a></td>
+                    <td>
+                        <a href="#" class="btn btn-danger">Hapus</a> 
+                        <a href="#" class="btn btn-success">Download</a></td>
+                    </tr>
+            @endforeach
         </tbody>
     </table>
 @endsection

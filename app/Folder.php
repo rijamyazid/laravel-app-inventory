@@ -14,4 +14,7 @@ class Folder extends Model
         return $this->belongsTo('App\Admin', 'created_by', 'username');
     }
 
+    public function files(){
+        return $this->hasMany('App\File');
+    }
 }
