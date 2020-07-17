@@ -12,6 +12,9 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <script type="text/javascript" src="{{ URL::asset('js/feather.js') }}"></script>
+    
+    
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -23,8 +26,12 @@
     <title>Managemen Arsip BKKBN</title>
 </head>
 <body>
-    <div class="container">
+    
         @yield('content')
-    </div>
+    
+
+    <script>
+        feather.replace()
+    </script>
 </body>
 </html>

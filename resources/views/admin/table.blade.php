@@ -1,6 +1,19 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <ul class="navbar nav nav-pills mr-auto">
+                <li class="nav-item">
+                    <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success">Tambah Folder</a>
+                </li>
+            </ul>
+            <ul class="navbar nav nav-pills mr-auto">
+                <li class="nav-item">
+                    <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
+                </li>
+            </ul>
+    </nav>
+
     <table class="table table-striped">
         <thead>
             <tr>
