@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use App\Folder;
 use App\File;
 use App\Role;
@@ -23,7 +24,7 @@ class AdminController extends Controller
             return redirect('/');
         }
 
-        $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/')->get();
+        $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('parent_path', '=', 'public')->get();
 
@@ -36,7 +37,7 @@ class AdminController extends Controller
 
     public function createFolderProcess($role_prefix, $url_path='', Request $request){
 
-        $base_path = 'public/'.$role_prefix.'/';
+        $base_path = 'public/' . $role_prefix;
 
         $this->validate($request,[
             'folder_name' => 'required',
@@ -45,7 +46,7 @@ class AdminController extends Controller
         $url_path_new = $url_path;
         if($url_path == ''){
             $url_path_new = $request->folder_name;
-            Storage::makeDirectory($base_path.$url_path_new);
+            Storage::makeDirectory($base_path. '/' .$url_path_new);
             Folder::create([
                 'name' => $request->folder_name,
                 'url_path' => $url_path_new,
@@ -55,7 +56,7 @@ class AdminController extends Controller
             ]);
             return redirect('/'.$role_prefix.'/folder/');
         } else {
-            Storage::makeDirectory($base_path.$url_path_new.'/'.$request->folder_name);
+            Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
             Folder::create([
                 'name' => $request->folder_name,
                 'url_path' => $url_path_new.'/'.$request->folder_name,
@@ -68,14 +69,43 @@ class AdminController extends Controller
     }
 
     public function deleteFolder($role_prefix, $folder_id){
-        $tmpFolderLastPath = '';
-
         $folder = Folder::find($folder_id);
 
         Storage::deleteDirectory($folder->parent_path.'/'.$folder->name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+    }
+
+    public function edit($role_prefix, $folderID){
+        $folder = Folder::find($folderID);
+        return view('admin.folder.edit', ['folder'=>$folder, 'role' => $role_prefix]);
+    }
+
+    public function update($role_prefix, $folderID, Request $request){
+        $this->validate($request,[
+            'foldername' => 'required',
+        ]);
+
+        $folder = Folder::find($folderID);
+
+        $oldFolderName = $folder->name;
+        $oldUrlPath = $folder->url_path;
+        $newFolderName = $request->foldername;
+
+        Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
+
+        $folder->name = $newFolderName;
+        $folder->save();
+
+        $folders = Folder::where('url_path', 'like', $folder->url_path . '%')->get();
+        foreach($folders as $folder){
+            $folder->url_path = Str::of($folder->url_path)->replaceFirst($oldFolderName, $newFolderName);
+            $folder->parent_path = Str::of($folder->parent_path)->replaceFirst($oldFolderName, $newFolderName);
+            $folder->save();
+        }
+
+        return redirect('/'. $role_prefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
     }
 
     public function view($role_prefix, $url_path=''){
@@ -101,26 +131,40 @@ class AdminController extends Controller
     }
 
     public function getFolderPath($role_prefix, $url_path){
-        $base_path = 'public/'.$role_prefix.'/';
+        $base_path = 'public/'.$role_prefix;
 
         if(count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);
             $merge = implode('/', $split);
 
-            return $base_path.$merge;
+            return $base_path. '/'. $merge;
         } else {
             return $base_path;
         }
     }
 
+    private function updateUrlPath($oldUrl, $newFoldername){
+        if(!is_null($oldUrl)){
+            if(count((explode('/', $oldUrl))) > 1){
+                $split = explode('/', $oldUrl, -1);
+                $merge = implode('/', $plit);
+                return $merge .'/'. $newFoldername;
+            } else {
+                return $newFoldername;
+            }
+        }
+
+        return null;
+    }
+
     public function deleteUrlPathLast($url_path){
         if(count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);
-            $merge = implode($split);
+            $merge = implode('/', $split);
 
             return $merge;
         } else {
-            return '';
+            return null;
         }
     }
 }
