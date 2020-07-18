@@ -49,23 +49,28 @@ class FilesController extends Controller
         return redirect($role_prefix . '/folder/' .$url_path);
     }
 
-    public function destroy(){
+    public function destroy($role_prefix, $uuid){
+        $file = File::where('uuid', $uuid)->first();
 
+        $filePath = $file->folder->parent_path . '/' . $file->folder->name .'/'. $file->uuid;
+        Storage::delete($filePath);
+
+        $file->delete();
+
+        return redirect('/' . $role_prefix . '/folder/' . $file->folder->url_path);
+    }
+
+    public function download($role_prefix, $uuid){
+        $file = File::where('uuid', $uuid)->first();
+
+        $filePath = $file->folder->parent_path . '/' . $file->folder->name .'/'. $file->uuid;
+        $fileName = $file->filename;
+
+        return Storage::download($filePath, $fileName);
     }
 
     private function getUUID($url){
         $split = explode('/', $url);
         return end($split);
-    }
-
-    private function deleteUrlPathLast($url_path){
-        if(count((explode('/', $url_path))) > 1){
-            $split = explode('/', $url_path, -1);
-            $merge = implode($split);
-
-            return $merge;
-        } else {
-            return '';
-        }
     }
 }

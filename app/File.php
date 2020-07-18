@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
     protected $table = 'files';
-    protected $fillable = ['uuid','filename', 'folder_id', 'created_by'];
+    protected $fillable = ['id', 'uuid','filename', 'folder_id', 'created_by'];
 
     public function admin(){
         return $this->belongsTo('App\Admin', 'created_by', 'username');
