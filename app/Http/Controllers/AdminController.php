@@ -15,20 +15,24 @@ class AdminController extends Controller
 
     public function index($role_prefix){
 
-        if(Session::has('role')){
-            if(Session::get('role') != $role_prefix){
-                return redirect(Session::get('role'));
-            }
-        } else {
+        if(!Session::has('username')){
             Session::flush();
             return redirect('/');
         }
 
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
         $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('parent_path', '=', 'public')->get();
+                ->where('folder_role', '=', $role_prefix)->get();
 
-        return view('admin.table', ['url_path'=> '', 'role' => $role_prefix ,'folders' => $folders, 'files' => $files]);
+        return view('admin.table', 
+            ['url_path'=> '', 
+            'role' => $role_prefix,
+            'sessions' => $sessions,
+            'roles' => $roles,
+            'folders' => $folders, 
+            'files' => $files]);
     }
 
     public function createFolder($role_prefix, $url_path=''){
@@ -51,7 +55,7 @@ class AdminController extends Controller
                 'name' => $request->folder_name,
                 'url_path' => $url_path_new,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
-                'created_by' => Session::get('user'),
+                'created_by' => Session::get('username'),
                 'folder_role' => $role_prefix
             ]);
             return redirect('/'.$role_prefix.'/folder/');
@@ -61,7 +65,7 @@ class AdminController extends Controller
                 'name' => $request->folder_name,
                 'url_path' => $url_path_new.'/'.$request->folder_name,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new.'/'.$request->folder_name),
-                'created_by' => Session::get('user'),
+                'created_by' => Session::get('username'),
                 'folder_role' => $role_prefix
             ]);
             return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
@@ -109,20 +113,28 @@ class AdminController extends Controller
     }
 
     public function view($role_prefix, $url_path=''){
-        $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
-
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
         if($url_path == ''){
+            $folders = Folder::where('parent_path', 'public/'.$role_prefix)->get();
             $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('parent_path', '=', 'public')
                 ->where('folder_role', $role_prefix)->get();
             // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
         } else {
+            $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)->get();
             $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('url_path', '=', $url_path)->get();
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         }
 
-        return view('admin.table', ['url_path'=> $url_path, 'role' => $role_prefix ,'folders' => $folders, 'files' => $files]);
+        return view('admin.table', 
+            ['url_path'=> $url_path, 
+            'role' => $role_prefix,
+            'sessions' => $sessions,
+            'roles' => $roles,
+            'folders' => $folders, 
+            'files' => $files]);
     }
 
     public function logout(){

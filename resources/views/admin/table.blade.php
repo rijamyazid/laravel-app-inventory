@@ -1,7 +1,8 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
+    @if ($sessions['role'] == 'super_admin')
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
             <ul class="navbar nav nav-pills mr-auto">
                 <li class="nav-item">
                     <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success">Tambah Folder</a>
@@ -12,9 +13,25 @@
                     <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
                 </li>
             </ul>
-    </nav>
-
-    <table class="table table-striped">
+        </nav>
+    @else
+        @if ($sessions['role'] == $role)
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <ul class="navbar nav nav-pills mr-auto">
+                <li class="nav-item">
+                    <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success">Tambah Folder</a>
+                </li>
+            </ul>
+            <ul class="navbar nav nav-pills mr-auto">
+                <li class="nav-item">
+                    <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
+                </li>
+            </ul>
+        </nav>   
+        @endif
+    @endif
+    
+    <table class="table">
         <thead>
             <tr>
                 <th>Nama</th>
@@ -24,10 +41,22 @@
         <tbody>
             @foreach ($folders as $folder)
                 <tr>
-                    <td><a href="{{ url("$role/folder/$folder->url_path") }}">{{$folder->name}}</a></td>
                     <td>
-                        <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
-                        <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>
+                        <a class="nav-link" href="{{ url("$role/folder/$folder->url_path") }}">
+                            <span class="mr-3" data-feather="folder"></span>
+                            {{ $folder->name }}
+                        </a>
+                    </td>
+                    <td>
+                        @if ($sessions['role'] == 'super_admin')
+                            <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
+                            <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>  
+                        @else
+                            @if ($sessions['role'] == $role)
+                                <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
+                                <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>  
+                            @endif
+                        @endif
                     </tr>
             @endforeach
             @foreach ($files as $file)
@@ -36,8 +65,15 @@
                                 $file->folder->name . '/' .
                                 $file->uuid) }}" target="_blank" >{{$file->filename}}</a></td>
                     <td>
-                        <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger">Hapus</a> 
-                        <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                        @if ($sessions['role'] == 'super_admin')
+                            <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger">Hapus</a> 
+                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                        @else
+                            @if ($sessions['role'] == $role)
+                                <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger">Hapus</a> 
+                            @endif
+                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                        @endif
                     </tr>
             @endforeach
         </tbody>

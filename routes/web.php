@@ -23,6 +23,9 @@ Route::post('/login', 'LoginController@auth');
 //Logout Route
 Route::get('/logout', 'AdminController@logout');
 
+//Super Admin Route
+Route::get('/{role_prefix}/create/bidang-baru', 'FoldersController@createNewBidang');
+
 //Admin Route
 Route::get('/{role_prefix}', 'AdminController@index');
 Route::get('/{role_prefix}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');

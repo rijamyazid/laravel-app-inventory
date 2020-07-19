@@ -31,16 +31,53 @@
                 Dashboard
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                <span data-feather="folder"></span>
-                Folder
-                </a>
-            </li>
+            @foreach ($roles as $role)        
+                @if ($sessions['role'] != 'super_admin')
+                    @if ($role->role != 'Super Admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/'. $role->role_prefix) }}">
+                            <span data-feather="folder"></span>
+                                {{ $role->role }}
+                            </a>
+                        </li>
+                    @endif
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/'. $role->role_prefix) }}">
+                        <span data-feather="folder"></span>
+                            {{ $role->role }}
+                        </a>
+                    </li>
+                @endif
+            @endforeach
+            @if ($sessions['role'] == 'super_admin')
+                <li class="nav-item" >
+                    <a class="nav-link" href="#" id="btn-tambah-bidang">
+                        <span data-feather="folder-plus"></span>
+                        Tambah Bidang
+                    </a>
+                </li>
+                <li class="nav-item justify-content-center px-3" id="form-tambah-bidang" style="display: none">
+                    <form action="{{ url($role . '/create/bidang-baru') }}" method="GET">
+                        @csrf
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-success w-100" value="Tambah">  
+                        </div>
+                    </form>
+                </li>
+            @endif
+            <script>
+                $("#btn-tambah-bidang").click(function(){
+                    $("#form-tambah-bidang").slideToggle();
+                });
+            </script>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                 <span data-feather="users"></span>
-                Kelola User
+                    Kelola User
                 </a>
             </li>
             </ul>

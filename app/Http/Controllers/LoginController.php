@@ -18,7 +18,7 @@ class LoginController extends Controller
         $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
         
         if(!is_null($admin)){
-            Session::put('user', $request->username);
+            Session::put('username', $request->username);
             Session::put('role', $admin->role->role_prefix);
             
             var_dump($admin->username);

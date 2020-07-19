@@ -41,7 +41,7 @@ class FilesController extends Controller
                     'uuid' => $uuid,
                     'filename' => $filename,
                     'folder_id' => $folder['id'],
-                    'created_by' => Session::get('user'),
+                    'created_by' => Session::get('username'),
                 ]);
             }
         }
