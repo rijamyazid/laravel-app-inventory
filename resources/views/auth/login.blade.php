@@ -1,12 +1,13 @@
 @extends('layouts/main')
 
 @section('content')
+<div class="container">
 <div class="mt-5">
   <div class="row">
     <div class="col-sm col-md col-lg col-xl text-center"></div>
     <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4 text-center">
       <div class="card shadow p-3 mb-5 bg-white rounded mt-4 text-center">
-        <img src="{{ asset('logo.png') }}" class="img-fluid w-75 mx-auto">
+        <img src="{{ asset('logo.png') }}" class="img-fluid w-50 mx-auto">
         <div class="card-body">
           <h4 class="card-title">Sistem Manajemen Arsip BKKBN Jawa Barat</h4>
           <div class="card-text">
@@ -38,5 +39,6 @@
     </div>
     <div class="col-sm col-md col-lg col-xl text-center"></div>
   </div>
+</div>
 </div>
 @endsection
