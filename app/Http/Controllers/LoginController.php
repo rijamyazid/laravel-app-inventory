@@ -10,24 +10,32 @@ use App\Admin;
 class LoginController extends Controller
 {
     public function auth(Request $request){
-        $this->validate($request,[
-            'username' => 'required',
-            'password' => 'required'
-        ]);
 
-        $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
-        
-        if(!is_null($admin)){
-            Session::put('username', $request->username);
-            Session::put('role', $admin->role->role_prefix);
+        if($request->has('username')){
+            $this->validate($request,[
+                'username' => 'required',
+                'password' => 'required'
+            ]);
+    
+            $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
             
-            var_dump($admin->username);
-
-            // $username = Session::get('user');
-            // echo $username;
-            return redirect('/'.$admin->role->role_prefix);
+            if(!is_null($admin)){
+                Session::put('username', $request->username);
+                Session::put('role', $admin->role->role);
+                Session::put('rolePrefix', $admin->role->role_prefix);
+                
+                return redirect('/'.$admin->role->role_prefix);
+            } else {
+                throw ValidationException::withMessages(['username' => 'Username atau password salah']);
+            }
         } else {
-            throw ValidationException::withMessages(['username' => 'Username atau password salah']);
+            Session::put('username', "Guest");
+            Session::put('role', "Guest");
+            Session::put('rolePrefix', "guest");
+            Session::save();
+
+            return redirect('/' . 'guest');
         }
+
     }
 }

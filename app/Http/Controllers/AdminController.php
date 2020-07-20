@@ -15,9 +15,12 @@ class AdminController extends Controller
 
     public function index($role_prefix){
 
-        if(!Session::has('username')){
-            Session::flush();
-            return redirect('/');
+        if(!Session::has('role')){
+            Session::put('role', 'Guest');
+            Session::put('rolePrefix', 'guest');
+            Session::save();
+
+            return redirect('/guest');
         }
 
         $sessions = Session::all();
@@ -33,6 +36,17 @@ class AdminController extends Controller
             'roles' => $roles,
             'folders' => $folders, 
             'files' => $files]);
+    }
+
+    public function frontPage($role_prefix){
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+
+        return view('admin.index', 
+                [ 'roleS' => Session::get('role'), 
+                    'role' => $role_prefix,
+                    'sessions' => $sessions,
+                    'roles' => $roles,]);
     }
 
     public function createFolder($role_prefix, $url_path=''){

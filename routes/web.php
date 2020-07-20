@@ -19,6 +19,7 @@ Route::get('/', function () {
 
 //Login Route
 Route::post('/login', 'LoginController@auth');
+Route::get('/{bidang}', 'AdminController@frontPage')->where(['bidang' => 'super_admin|guest']);
 
 //Logout Route
 Route::get('/logout', 'AdminController@logout');

@@ -33,6 +33,9 @@
             <div class="form-group">
                 <input class="btn btn-primary" type="submit" value="Login">
             </div>
+            <div class="form-group">
+                <a href="/login" class="btn btn-success">Login Sebagai Guest</a>
+            </div>
           </form>
         </div>
       </div>

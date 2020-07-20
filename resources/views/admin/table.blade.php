@@ -1,7 +1,7 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    @if ($sessions['role'] == 'super_admin')
+    @if ($sessions['rolePrefix'] == 'super_admin')
         <nav class="navbar navbar-expand-md navbar-light bg-light">
             <ul class="navbar nav nav-pills mr-auto">
                 <li class="nav-item">
@@ -15,7 +15,7 @@
             </ul>
         </nav>
     @else
-        @if ($sessions['role'] == $role)
+        @if ($sessions['rolePrefix'] == $role)
         <nav class="navbar navbar-expand-md navbar-light bg-light">
             <ul class="navbar nav nav-pills mr-auto">
                 <li class="nav-item">
@@ -48,11 +48,11 @@
                         </a>
                     </td>
                     <td>
-                        @if ($sessions['role'] == 'super_admin')
+                        @if ($sessions['rolePrefix'] == 'super_admin')
                             <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
                             <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>  
                         @else
-                            @if ($sessions['role'] == $role)
+                            @if ($sessions['rolePrefix'] == $role)
                                 <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
                                 <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger">Hapus</a></td>  
                             @endif
@@ -65,11 +65,11 @@
                                 $file->folder->name . '/' .
                                 $file->uuid) }}" target="_blank" >{{$file->filename}}</a></td>
                     <td>
-                        @if ($sessions['role'] == 'super_admin')
+                        @if ($sessions['rolePrefix'] == 'super_admin')
                             <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger">Hapus</a> 
                             <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
                         @else
-                            @if ($sessions['role'] == $role)
+                            @if ($sessions['rolePrefix'] == $role)
                                 <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger">Hapus</a> 
                             @endif
                             <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>

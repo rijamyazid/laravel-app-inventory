@@ -32,7 +32,7 @@
                 </a>
             </li>
             @foreach ($roles as $role)        
-                @if ($sessions['role'] != 'super_admin')
+                @if ($sessions['rolePrefix'] != 'super_admin')
                     @if ($role->role != 'Super Admin')
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url('/'. $role->role_prefix) }}">
@@ -50,7 +50,7 @@
                     </li>
                 @endif
             @endforeach
-            @if ($sessions['role'] == 'super_admin')
+            @if ($sessions['rolePrefix'] == 'super_admin')
                 <li class="nav-item" >
                     <a class="nav-link" href="#" id="btn-tambah-bidang">
                         <span data-feather="folder-plus"></span>
