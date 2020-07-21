@@ -1,0 +1,29 @@
+@extends('dashboard.dashboard')
+
+@section('sub-content')
+<div class="container mt-4">
+    <h3>Tambah User</h3>
+    <form action="{{ url('/'. $sessions['rolePrefix']. '/store/admin') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <input type="text" class="form-control" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="password" placeholder="Password">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="name" placeholder="Nama Lengkap">
+        </div>
+        <div class="form-group">
+            <select name="role">
+                @foreach($roles as $role)
+                    <option value="{{$role->id}}">{{$role->role}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btn btn-success" value="Tambah User">
+        </div>
+    </form>
+</div>
+@endsection

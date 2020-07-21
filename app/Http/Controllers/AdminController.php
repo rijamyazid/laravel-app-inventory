@@ -209,7 +209,7 @@ class AdminController extends Controller
         }
     }
 
-    public function viewUser(){
+    public function viewAdmin(){
         $sessions = Session::all();
         $admin = Admin::get();
         $roles = Role::orderBy('role', 'asc')->get();
@@ -217,5 +217,76 @@ class AdminController extends Controller
             ['admin' => $admin ,
              'sessions' => $sessions ,
              'roles' => $roles]);
+    }
+
+    public function createAdmin(){
+        $admin = Admin::get();
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+        return view('admin.kelola.create', 
+            ['admin' => $admin,
+             'sessions' => $sessions,
+             'roles' => $roles]);
+    }
+
+    public function storeAdmin(Request $request){
+        $this->validate($request,[
+            'username' => 'required',
+            'password' => 'required',
+            'name' => 'required',
+            'role' => 'required'
+        ]);
+
+        $username = $request->username;
+        $password = $request->password;
+        $name = $request->name;
+        $role = $request->role;
+
+        Admin::create([
+            'username' => $username,
+            'password' => $password,
+            'name' => $name,
+            'role_id' => $role,
+        ]);
+
+        return redirect('/'. Session::get('rolePrefix') .'/view/admin');
+    }
+
+    public function editAdmin($role_prefix, $username){
+        $admin = Admin::where('username' , '=' , $username)->first();
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+        
+        return view('admin.kelola.edit', 
+            ['admin' => $admin,
+             'sessions' => $sessions,
+             'roles' => $roles] );
+    }
+    
+    public function updateAdmin($url_path , $username , Request $request){
+        // $this->validate($request,[
+        //     'username' => 'required',
+        //     'password' => 'required',
+        //     'name' => 'required',
+        // ]);
+
+        $admin = Admin::where('username' , '=' , $username)->first();
+
+        $admin->password = $request->password;
+        $admin->name = $request->name;
+        $admin->role_id = $request->role;
+        $admin->save();
+
+        return redirect('/'. Session::get('rolePrefix') .'/view/admin');
+    }
+
+    public function deleteAdmin($role_prefix, $username){
+        $admin = Admin::where('username' , '=' , $username)->first();
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+
+        $admin->delete();
+
+        return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 }

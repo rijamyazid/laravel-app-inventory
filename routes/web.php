@@ -26,7 +26,12 @@ Route::get('/logout', 'AdminController@logout');
 
 //Super Admin Route
 Route::get('/{role_prefix}/create/bidang-baru', 'FoldersController@createNewBidang');
-Route::get('/{role_prefix}/view/admin', 'AdminController@viewUser');
+Route::get('/{role_prefix}/view/admin', 'AdminController@viewAdmin');
+Route::get('/{role_prefix}/create/admin', 'AdminController@createAdmin');
+Route::post('/{role_prefix}/store/admin', 'AdminController@storeAdmin');
+Route::get('/{role_prefix}/edit/admin/{username}', 'AdminController@editAdmin');
+Route::post('/{role_prefix}/update/admin/{username}', 'AdminController@updateAdmin');
+Route::get('/{role_prefix}/delete/admin/{username}', 'AdminController@deleteAdmin');
 
 //Admin Route
 Route::get('/{role_prefix}', 'AdminController@index');

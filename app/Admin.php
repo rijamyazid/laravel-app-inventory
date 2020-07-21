@@ -9,6 +9,7 @@ class Admin extends Model
     public $incrementing = false;
     protected $table='admin';
     protected $primaryKey = 'username';
+    protected $fillable = ['username', 'password', 'name', 'role_id'];
 
     public function role(){
         return $this->belongsTo('App\Role');

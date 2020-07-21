@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-<nav class="navbar navbar-expand-md navbar-light" style="background-color: #e3f2fd; z-index: 110;">
+<nav class="navbar navbar-expand-md navbar-light fixed-top" style="background-color: #e3f2fd; z-index: 110;">
     <div class="mx-auto order-0">
         <a class="navbar-brand mx-auto" href="/{role_prefix}">Sistem Manajemen Arsip BKKBN Jawa Barat</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
