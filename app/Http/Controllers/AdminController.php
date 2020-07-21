@@ -27,7 +27,8 @@ class AdminController extends Controller
         $roles = Role::orderBy('role', 'asc')->get();
         $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('folder_role', '=', $role_prefix)->get();
+                ->where('parent_path', '=', 'public')
+                ->where('folder_role', $role_prefix)->get();;
 
         return view('admin.table', 
             ['url_path'=> '', 
