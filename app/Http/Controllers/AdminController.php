@@ -58,7 +58,7 @@ class AdminController extends Controller
                 ->where('folder_role', '=', $role_prefix)->get();
                 
         return view('admin.create_table', 
-            ['url_path'=> '', 
+            ['url_path'=> $url_path, 
             'role' => $role_prefix,
             'sessions' => $sessions,
             'roles' => $roles,

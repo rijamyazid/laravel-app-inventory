@@ -7,11 +7,25 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use App\File;
 use App\Folder;
+use App\Role;
 
 class FilesController extends Controller
 {
     public function create($role_prefix, $url_path=''){
-        return view('admin.files.create', ['role' => $role_prefix, 'url_path' => $url_path]);
+        // return view('admin.files.create', ['role' => $role_prefix, 'url_path' => $url_path]);
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+        $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
+        $files = File::join('folders', 'folder_id','=', 'folders.id')
+                ->where('folder_role', '=', $role_prefix)->get();
+                
+        return view('admin.files.create', 
+            ['url_path'=> $url_path, 
+            'role' => $role_prefix,
+            'sessions' => $sessions,
+            'roles' => $roles,
+            'folders' => $folders, 
+            'files' => $files]);
     }
 
     public function store($role_prefix, $url_path='', Request $request){

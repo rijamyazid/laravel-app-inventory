@@ -1,6 +1,7 @@
-@extends('layouts.main')
+@extends('dashboard.dashboard')
 
-@section('content')
+@section('sub-content')
+<div class="container mt-4">
     <h3>Tambah File</h3>
     <form action="/{{$role}}/store/files/{{$url_path}}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -11,4 +12,5 @@
             <input type="submit" class="btn btn-success" value="Tambahkan File">
         </div>
     </form>
+</div>
 @endsection
