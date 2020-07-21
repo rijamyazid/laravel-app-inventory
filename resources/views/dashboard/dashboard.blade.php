@@ -26,7 +26,7 @@
         <div class="sidebar-sticky pt-3" style="background-color: #e3f2fd;">
             <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="/{role_prefix}">
+                <a class="nav-link" href="{{url('/'. $sessions['rolePrefix'])}}">
                 <span data-feather="home"></span>
                 Dashboard
                 </a>
@@ -63,7 +63,7 @@
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group">    
                             <input type="submit" class="btn btn-success w-100" value="Tambah">  
                         </div>
                     </form>
