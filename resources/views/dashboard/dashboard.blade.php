@@ -68,18 +68,18 @@
                         </div>
                     </form>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url('/'. $role->role_prefix. '/view/admin') }}">
+                        <span data-feather="users"></span>
+                        Kelola User
+                    </a>
+                </li>
             @endif
             <script>
                 $("#btn-tambah-bidang").click(function(){
                     $("#form-tambah-bidang").slideToggle();
                 });
             </script>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                <span data-feather="users"></span>
-                    Kelola User
-                </a>
-            </li>
             </ul>
         </div>
         </nav>

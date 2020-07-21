@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Folder;
 use App\File;
 use App\Role;
+use App\Admin;
 
 class AdminController extends Controller
 {
@@ -206,5 +207,15 @@ class AdminController extends Controller
         } else {
             return null;
         }
+    }
+
+    public function viewUser(){
+        $sessions = Session::all();
+        $admin = Admin::get();
+        $roles = Role::orderBy('role', 'asc')->get();
+        return view('admin.kelola.admin', 
+            ['admin' => $admin ,
+             'sessions' => $sessions ,
+             'roles' => $roles]);
     }
 }
