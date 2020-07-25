@@ -31,9 +31,8 @@
 </head>
 <body>
     
-        @yield('content')
+    @yield('content')
     
-
     <script>
         feather.replace()
     </script>

@@ -19,13 +19,13 @@ Route::get('/', function () {
 
 //Login Route
 Route::post('/login', 'LoginController@auth');
-Route::get('/{bidang}', 'AdminController@frontPage')->where(['bidang' => 'super_admin|guest']);
+Route::get('/guest_login', 'LoginController@guest');
+Route::get('/{bidang}/dashboard', 'AdminController@index');
 
 //Logout Route
 Route::get('/logout', 'AdminController@logout');
 
 //Super Admin Route
-Route::get('/{role_prefix}/create/bidang-baru', 'FoldersController@createNewBidang');
 Route::get('/{role_prefix}/view/admin', 'AdminController@viewAdmin');
 Route::get('/{role_prefix}/create/admin', 'AdminController@createAdmin');
 Route::post('/{role_prefix}/store/admin', 'AdminController@storeAdmin');
@@ -33,23 +33,17 @@ Route::get('/{role_prefix}/edit/admin/{username}', 'AdminController@editAdmin');
 Route::post('/{role_prefix}/update/admin/{username}', 'AdminController@updateAdmin');
 Route::get('/{role_prefix}/delete/admin/{username}', 'AdminController@deleteAdmin');
 
-//Admin Route
-Route::get('/{role_prefix}', 'AdminController@index');
-Route::get('/{role_prefix}/folder/{url_path?}', 'AdminController@view')->where('url_path', '.*');
-Route::get('/{role_prefix}/create/folder/{url_path?}', 'AdminController@createFolder')->where('url_path', '.*');
-Route::post('/{role_prefix}/creating/folder/{url_path?}', 'AdminController@createFolderProcess')->where('url_path', '.*');
-Route::get('/{role_prefix}/edit/folder/{folderID}', 'AdminController@edit');
-Route::post('/{role_prefix}/update/folder/{folderID}', 'AdminController@update');
-Route::get('/{role_prefix}/delete/folder/{folderID}', 'AdminController@deleteFolder');
+//Folders Route
+Route::get('/{role_prefix}/create/folder/{url_path?}', 'FoldersController@create')->where('url_path', '.*');
+Route::post('/{role_prefix}/create/bidang-baru', 'FoldersController@createNewBidang');
+Route::post('/{role_prefix}/creating/folder/{url_path?}', 'FoldersController@store')->where('url_path', '.*');
+Route::get('/{role_prefix}/folder/{url_path?}', 'FoldersController@view')->where('url_path', '.*');
+Route::get('/{role_prefix}/edit/folder/{folderID}', 'FoldersController@edit');
+Route::post('/{role_prefix}/update/folder/{folderID}', 'FoldersController@update');
+Route::get('/{role_prefix}/delete/folder/{folderID}', 'FoldersController@delete');
 
 //Files Route
 Route::get('/{role_prefix}/create/files/{url_path?}', 'FilesController@create')->where('url_path', '.*');
 Route::post('/{role_prefix}/store/files/{url_path?}', 'FilesController@store')->where('url_path', '.*');
 Route::get('/{role_prefix}/destroy/file/{uuid}', 'FilesController@destroy')->where('url_path', '.*');
 Route::get('/{role_prefix}/download/file/{uuid}', 'FilesController@download')->where('url_path', '.*');
-
-Route::get('/{bidang}/folder/{any?}', function($bidang, $any = ''){
-    echo $bidang;
-    echo $any;
-})->where(['bidang' =>'BidangSekretariat|BidangAdpin|BidangKbkr|BidangKspk|BidangDalduk|BidangLatbang', 
-            'any' =>'.*']);

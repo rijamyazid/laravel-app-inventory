@@ -19,7 +19,7 @@ class FilesController extends Controller
         $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('folder_role', '=', $role_prefix)->get();
                 
-        return view('admin.files.create', 
+        return view('content.files.create', 
             ['url_path'=> $url_path, 
             'role' => $role_prefix,
             'sessions' => $sessions,

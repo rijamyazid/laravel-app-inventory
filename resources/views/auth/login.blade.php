@@ -31,12 +31,17 @@
                 <input class="form-control" type="password" name="password" placeholder="Password">
             </div>
             <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="Login">
-            </div>
-            <div class="form-group">
-                <a href="/login" class="btn btn-success">Login Sebagai Guest</a>
+                <input class="btn btn-primary btn-block" type="submit" value="Login">
             </div>
           </form>
+          <div class="row">
+              <div class="col-md"><hr></div>
+              <div class="col-md-3">Atau</div>
+              <div class="col-md"><hr></div>
+          </div>
+          <div class="form-group">
+            <a href="/guest_login" class="btn btn-success btn-block">Login Sebagai Guest</a>
+          </div>
         </div>
       </div>
     </div>

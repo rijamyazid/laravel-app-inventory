@@ -26,7 +26,7 @@
         <div class="sidebar-sticky pt-3" style="background-color: #e3f2fd;">
             <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="{{url('/'. $sessions['rolePrefix'])}}">
+                <a class="nav-link" href="{{url('/'. $sessions['rolePrefix']) . '/dashboard'}}">
                 <span data-feather="home"></span>
                 Dashboard
                 </a>
@@ -35,7 +35,7 @@
                 @if ($sessions['rolePrefix'] != 'super_admin')
                     @if ($role->role != 'Super Admin')
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/'. $role->role_prefix) }}">
+                            <a class="nav-link" href="{{ url('/'. $role->role_prefix . '/folder/') }}">
                             <span data-feather="folder"></span>
                                 {{ $role->role }}
                             </a>
@@ -43,7 +43,7 @@
                     @endif
                 @else
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/'. $role->role_prefix) }}">
+                        <a class="nav-link" href="{{ url('/'. $role->role_prefix . '/folder/') }}">
                         <span data-feather="folder"></span>
                             {{ $role->role }}
                         </a>
@@ -58,7 +58,7 @@
                     </a>
                 </li>
                 <li class="nav-item justify-content-center px-3" id="form-tambah-bidang" style="display: none">
-                    <form action="{{ url($role . '/create/bidang-baru') }}" method="GET">
+                    <form action="{{ url($role . '/create/bidang-baru') }}" method="POST">
                         @csrf
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
