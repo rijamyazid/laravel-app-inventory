@@ -1,6 +1,8 @@
-@extends('layouts.main')
+@extends('dashboard.dashboard')
 
-@section('content')
+@section('sub-content')
+<div class="container mt-4">
+    <h3>Edit Folder</h3>
     <form action="/{{ $role }}/update/folder/{{ $folder->id }}" method="POST">
         @csrf
         <div class="form-group">
@@ -11,4 +13,5 @@
             <input type="submit" class="btn btn-success" value="Buat Folder">
         </div>
     </form>
+</div>
 @endsection

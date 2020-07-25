@@ -112,7 +112,13 @@ class AdminController extends Controller
 
     public function edit($role_prefix, $folderID){
         $folder = Folder::find($folderID);
-        return view('admin.folder.edit', ['folder'=>$folder, 'role' => $role_prefix]);
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+        return view('admin.folder.edit',
+         ['folder'=>$folder,
+          'sessions' => $sessions, 
+          'roles' => $roles, 
+          'role' => $role_prefix,]);
     }
 
     public function update($role_prefix, $folderID, Request $request){
