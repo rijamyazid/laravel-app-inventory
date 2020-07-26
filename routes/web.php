@@ -47,3 +47,4 @@ Route::get('/{role_prefix}/create/files/{url_path?}', 'FilesController@create')-
 Route::post('/{role_prefix}/store/files/{url_path?}', 'FilesController@store')->where('url_path', '.*');
 Route::get('/{role_prefix}/destroy/file/{uuid}', 'FilesController@destroy')->where('url_path', '.*');
 Route::get('/{role_prefix}/download/file/{uuid}', 'FilesController@download')->where('url_path', '.*');
+Route::get('/{role_prefix}/search', 'FoldersController@search');

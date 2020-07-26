@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use App\Role;
 use App\Folder;
 use App\File;
@@ -92,8 +93,14 @@ class FoldersController extends Controller
     }
 
     public function edit($role_prefix, $folderID){
+        $roles = Role::orderBy('role', 'asc')->get();
         $folder = Folder::find($folderID);
-        return view('content.folders.edit', ['folder'=>$folder, 'role' => $role_prefix]);
+        $sessions = Session::all();
+        return view('content.folders.edit', 
+            ['folder'=>$folder, 
+            'role' => $role_prefix,
+            'sessions' => $sessions,
+            'roles' => $roles]);
     }
 
     public function update($role_prefix, $folderID, Request $request){
@@ -129,6 +136,27 @@ class FoldersController extends Controller
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+    }
+
+    public function search($role, Request $request){
+        $this->validate($request,[
+            'q' => 'required',
+        ]);
+
+        $sessions = Session::all();
+        $roles = Role::orderBy('role', 'asc')->get();
+        $files = File::join('folders', 'folder_id','=', 'folders.id')
+            ->where('filename', 'like', $request->q . '%')
+            ->where('folders.folder_role', '=', $request->bidang)
+            ->orderBy('filename', 'asc')->get();
+
+        return view('content.folders.view', 
+            ['url_path'=> '', 
+            'role' => $role,
+            'sessions' => $sessions,
+            'roles' => $roles,
+            'folders' => [],
+            'files' => $files]);
     }
 
     public function createNewBidang($role, Request $request)

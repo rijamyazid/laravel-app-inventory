@@ -1,35 +1,29 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    @if ($sessions['rolePrefix'] == 'super_admin')
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <ul class="navbar nav nav-pills mr-auto">
-                <li class="nav-item">
-                    <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success">Tambah Folder</a>
-                </li>
-            </ul>
-            <ul class="navbar nav nav-pills mr-auto">
-                <li class="nav-item">
-                    <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
-                </li>
-            </ul>
-        </nav>
-    @else
-        @if ($sessions['rolePrefix'] == $role)
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <ul class="navbar nav nav-pills mr-auto">
-                <li class="nav-item">
-                    <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success">Tambah Folder</a>
-                </li>
-            </ul>
-            <ul class="navbar nav nav-pills mr-auto">
-                <li class="nav-item">
-                    <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success">Tambah File</a>
-                </li>
-            </ul>
-        </nav>   
-        @endif
+    <div class="row my-3">
+    @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
+        <div class="col-md-2">
+            <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success btn-block">Tambah Folder</a>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ url("$role/create/files/$url_path") }}" class="btn btn-success btn-block">Tambah File</a>
+        </div>
     @endif
+        <div class="col-md">
+            <form class="form-inline float-right" action="{{ url('/' . $role . '/search') }}" method="GET">
+                <div class="form-group mr-3">
+                    <input class="form-control" type="text" placeholder="Cari File" name="bidang" hidden value="{{ $role }}">
+                </div>
+                <div class="form-group mr-3">
+                    <input class="form-control" type="text" placeholder="Cari File" name="q">
+                </div>
+                <div class="form-group">
+                    <input class="btn btn-success" type="submit" value="Cari">
+                </div>
+            </form>
+        </div>
+    </div>
     
     <table class="table">
         <thead>
