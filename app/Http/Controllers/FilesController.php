@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use App\File;
 use App\Folder;
 use App\Role;
+use Alert;
 
 class FilesController extends Controller
 {
@@ -60,6 +61,7 @@ class FilesController extends Controller
             }
         }
         
+        Alert::success('File Berhasil Ditambah!');
         return redirect($role_prefix . '/folder/' .$url_path);
     }
 

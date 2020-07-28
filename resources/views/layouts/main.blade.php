@@ -14,7 +14,8 @@
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script type="text/javascript" src="{{ URL::asset('js/feather.js') }}"></script>
     
-    
+    {{-- Icons --}}
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('iconBkkbn.ico') }}" />
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -27,14 +28,31 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </head>
 <body>
-    
+    @include('sweetalert::alert')
     @yield('content')
     
     <script>
         feather.replace()
+    </script>
+    <script>
+        $('.delete-confirm').on('click', function (event) {
+            event.preventDefault();
+            const url = $(this).attr('href');
+            swal({
+                title: 'Yakin Hapus?',
+                text: 'Item ini akan dihapus secara permanen!',
+                icon: 'warning',
+                buttons: ["Batal", "Ya!"],
+            }).then(function(value) {
+                if (value) {
+                    window.location.href = url;
+                }
+            });
+        });
     </script>
 </body>
 </html>

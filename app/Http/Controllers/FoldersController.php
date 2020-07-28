@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Role;
 use App\Folder;
 use App\File;
+use Alert;
 
 class FoldersController extends Controller
 {
@@ -56,6 +57,7 @@ class FoldersController extends Controller
                 'created_by' => Session::get('username'),
                 'folder_role' => $role_prefix
             ]);
+            Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/');
         } else {
             Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
@@ -66,6 +68,7 @@ class FoldersController extends Controller
                 'created_by' => Session::get('username'),
                 'folder_role' => $role_prefix
             ]);
+            Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
         }
     }
@@ -134,6 +137,7 @@ class FoldersController extends Controller
             $folder->save();
         }
 
+        Alert::success('Folder Berhasil Di Edit!');
         return redirect('/'. $role_prefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
     }
 
