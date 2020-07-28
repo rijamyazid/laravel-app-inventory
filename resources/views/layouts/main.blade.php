@@ -13,8 +13,6 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script type="text/javascript" src="{{ URL::asset('js/feather.js') }}"></script>
-    
-    
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -22,6 +20,19 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        .side-link {
+            color: #FFFFFF;
+        }
+
+        .side-link-active {
+            color: #FFFFFF;
+        }
+
+        .side-link:hover {
+            color: #BEBEBE;
+        }
+    </style>
 
     <title>Managemen Arsip BKKBN</title>
 

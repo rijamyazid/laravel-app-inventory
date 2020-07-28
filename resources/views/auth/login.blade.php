@@ -1,8 +1,8 @@
 @extends('layouts/main')
 
 @section('content')
-<div class="container">
-<div class="mt-5">
+<div class="container-fluid d-flex justify-content-center align-items-center" 
+  style="min-height: 100vh; background-image: linear-gradient(to bottom right, #48b1bf, #ffffff);">
   <div class="row">
     <div class="col-sm col-md col-lg col-xl text-center"></div>
     <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4 text-center">
@@ -47,6 +47,5 @@
     </div>
     <div class="col-sm col-md col-lg col-xl text-center"></div>
   </div>
-</div>
 </div>
 @endsection
