@@ -41,11 +41,6 @@ class FoldersController extends Controller
 
         $newFolderName = $request->folder_name;
 
-        $folders = Folder::where('name', 'like', $request->folder_name . '%')->get();
-        if(count($folders) > 0){
-            $newFolderName = $request->folder_name . ' ('. count($folders) .')';
-        }
-
         $url_path_new = $url_path;
         if($url_path == ''){
             $url_path_new = $request->folder_name;

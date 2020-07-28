@@ -99,8 +99,11 @@
                             @if ($sessions['rolePrefix'] == $role)
                                 <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
                             @endif
-                        </tr>
-                @endforeach
+                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
             </tbody>
         </table>
 </div>
