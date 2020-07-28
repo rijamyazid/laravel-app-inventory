@@ -26,7 +26,7 @@
                 </div>
                 <div class="form-group">
                     {{-- <input class="btn btn-success" type="submit" value="Cari"> --}}
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" type="submit" value="Cari">
                         <span data-feather="search"></span>
                     </button>
                 </div>

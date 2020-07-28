@@ -147,6 +147,7 @@ class FoldersController extends Controller
         Storage::deleteDirectory($folder->parent_path.'/'.$folder->name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
+        Alert::warning('Folder Berhasil Dihapus!');
         return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
     }
 
@@ -165,6 +166,7 @@ class FoldersController extends Controller
         return view('content.folders.view', 
             ['url_path'=> '', 
             'role' => $role,
+            'locations' => [],
             'sessions' => $sessions,
             'roles' => $roles,
             'folders' => [],

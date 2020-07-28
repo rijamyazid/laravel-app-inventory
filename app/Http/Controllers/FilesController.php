@@ -73,6 +73,7 @@ class FilesController extends Controller
 
         $file->delete();
 
+        Alert::warning('File Berhasil Dihapus!');
         return redirect('/' . $role_prefix . '/folder/' . $file->folder->url_path);
     }
 
