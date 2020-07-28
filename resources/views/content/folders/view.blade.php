@@ -1,6 +1,7 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
+    
     <div class="row mt-3">
     @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
         <div class="col-md-auto col-sm mx-auto mb-2">
@@ -42,6 +43,15 @@
             @endforeach
         </div>
     </div>
+
+    {{-- ALERT UNTUK AKSI --}}
+    @if ($message = Session::get('successFolder'))
+      <div class="alert alert-success alert-block">
+        <button type="button" class="close" data-dismiss="alert">×</button> 
+          <strong>{{ $message }}</strong>
+      </div>
+    @endif
+    {{-- ALERT UNTUK AKSI --}}
 
     <table class="table">
         <thead>

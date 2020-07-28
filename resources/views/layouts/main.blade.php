@@ -34,7 +34,7 @@
 <body>
     @include('sweetalert::alert')
     @yield('content')
-    
+
     <script>
         feather.replace()
     </script>
@@ -54,5 +54,11 @@
             });
         });
     </script>
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 </body>
 </html>

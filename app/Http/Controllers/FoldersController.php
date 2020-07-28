@@ -59,6 +59,8 @@ class FoldersController extends Controller
             ]);
             Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/');
+            // return redirect('/'.$role_prefix.'/folder/')->with(['successFolder' => 'Folder '.$newFolderName.' berhasil ditambah!']);
+            
         } else {
             Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
             Folder::create([
@@ -70,6 +72,7 @@ class FoldersController extends Controller
             ]);
             Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
+            // return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/')->with(['successFolder' => 'Folder '.$newFolderName.' berhasil ditambah!']);
         }
     }
 
