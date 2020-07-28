@@ -1,7 +1,7 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    
+<div class="container-fluid p-3">
     <div class="row mt-3">
     @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
         <div class="col-md-auto col-sm mx-auto mb-2">
@@ -36,10 +36,10 @@
     </div>
     <div class="row mt-1 mb-1">
         <div class="col">
-            <a href="{{ url('/'. $sessions['rolePrefix'] . '/folder') }}"> <strong>Home</strong></a>
+            <a href="{{ url('/'. $role . '/folder') }}"> <strong>Home</strong></a>
             @foreach ($locations as $location)
                 <a><strong> > </strong></a>
-                <a href="{{ url('/'. $sessions['rolePrefix'] . '/folder/' . $location['locLink']) }}"> <strong>{{$location['loc']}}</strong></a>
+                <a href="{{ url('/'. $role . '/folder/' . $location['locLink']) }}"> <strong>{{$location['loc']}}</strong></a>
             @endforeach
         </div>
     </div>
@@ -99,10 +99,10 @@
                             @if ($sessions['rolePrefix'] == $role)
                                 <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
                             @endif
-                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
-                        @endif
-                    </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        </tr>
+                @endforeach
+            </tbody>
+        </table>
+</div>
+</div>
 @endsection

@@ -23,6 +23,19 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        .side-link {
+            color: #FFFFFF;
+        }
+
+        .side-link-active {
+            color: #FFFFFF;
+        }
+
+        .side-link:hover {
+            color: #BEBEBE;
+        }
+    </style>
 
     <title>Managemen Arsip BKKBN</title>
 

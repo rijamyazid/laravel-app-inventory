@@ -77,6 +77,8 @@ class FoldersController extends Controller
     }
 
     public function view($role_prefix, $url_path=''){
+        Session::put('side_loc', $role_prefix);
+
         $sessions = Session::all();
         $roles = Role::orderBy('role', 'asc')->get();
         if($url_path == ''){

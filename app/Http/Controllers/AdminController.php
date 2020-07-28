@@ -15,6 +15,8 @@ class AdminController extends Controller
 {
 
     public function index($role_prefix){
+        Session::put('side_loc', 'dashboard');
+
         $sessions = Session::all();
         $roles = Role::orderBy('role', 'asc')->get();
 
@@ -26,11 +28,15 @@ class AdminController extends Controller
     }
 
     public function viewAdmin(){
+        Session::put('side_loc', 'kelola_user');
+
         $sessions = Session::all();
         $admin = Admin::get();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Role::orderBy('role', 'asc')->get();      
+
         return view('content.admin.view', 
             ['admin' => $admin ,
+             'role' => 'super_admin',
              'sessions' => $sessions ,
              'roles' => $roles]);
     }
@@ -41,6 +47,7 @@ class AdminController extends Controller
         $roles = Role::orderBy('role', 'asc')->get();
         return view('content.admin.create', 
             ['admin' => $admin,
+             'role' => 'super_admin',
              'sessions' => $sessions,
              'roles' => $roles]);
     }
@@ -75,6 +82,7 @@ class AdminController extends Controller
         
         return view('content.admin.edit', 
             ['admin' => $admin,
+             'role' => 'super_admin',
              'sessions' => $sessions,
              'roles' => $roles] );
     }
