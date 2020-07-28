@@ -91,7 +91,8 @@ class FoldersController extends Controller
         }
 
         return view('content.folders.view', 
-            ['url_path'=> $url_path, 
+            ['url_path'=> $url_path,
+            'locations' => self::locations($url_path), 
             'role' => $role_prefix,
             'sessions' => $sessions,
             'roles' => $roles,
@@ -231,5 +232,16 @@ class FoldersController extends Controller
         } else {
             return null;
         }
+    }
+
+    public function locations($location){
+        $split = explode('/', $location);
+        $darray = array();
+        $locLink = '';
+        foreach($split as $s){
+            $locLink = $locLink . $s . '/';
+            array_push($darray, array('loc' => $s, 'locLink' => $locLink));            
+        }
+        return $darray;
     }
 }

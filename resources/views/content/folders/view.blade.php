@@ -1,7 +1,7 @@
 @extends('dashboard.dashboard')
 
 @section('sub-content')
-    <div class="row my-3">
+    <div class="row mt-3">
     @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
         <div class="col-md-2">
             <a href="{{ url("$role/create/folder/$url_path") }}" class="btn btn-success btn-block">Tambah Folder</a>
@@ -24,7 +24,16 @@
             </form>
         </div>
     </div>
-    
+    <div class="row mt-3 mb-1">
+        <div class="col">
+            <a href="{{ url('/'. $sessions['rolePrefix'] . '/folder') }}"> <strong>Home</strong></a>
+            @foreach ($locations as $location)
+                <a><strong> > </strong></a>
+                <a href="{{ url('/'. $sessions['rolePrefix'] . '/folder/' . $location['locLink']) }}"> <strong>{{$location['loc']}}</strong></a>
+            @endforeach
+        </div>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
