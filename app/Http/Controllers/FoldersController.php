@@ -38,12 +38,19 @@ class FoldersController extends Controller
             'folder_name' => 'required',
         ]);
 
+        $newFolderName = $request->folder_name;
+
+        $folders = Folder::where('name', 'like', $request->folder_name . '%')->get();
+        if(count($folders) > 0){
+            $newFolderName = $request->folder_name . ' ('. count($folders) .')';
+        }
+
         $url_path_new = $url_path;
         if($url_path == ''){
             $url_path_new = $request->folder_name;
             Storage::makeDirectory($base_path. '/' .$url_path_new);
             Folder::create([
-                'name' => $request->folder_name,
+                'name' => $newFolderName,
                 'url_path' => $url_path_new,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
                 'created_by' => Session::get('username'),
@@ -53,7 +60,7 @@ class FoldersController extends Controller
         } else {
             Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
             Folder::create([
-                'name' => $request->folder_name,
+                'name' => $newFolderName,
                 'url_path' => $url_path_new.'/'.$request->folder_name,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new.'/'.$request->folder_name),
                 'created_by' => Session::get('username'),
