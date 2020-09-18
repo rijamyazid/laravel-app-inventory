@@ -28,19 +28,19 @@
                     <td>
                         <a class="nav-link" href="#">
                             <span class="mr-3" data-feather="user"></span>
-                            {{ $admin->name }}
+                            {{ $admin->admin_name }}
                         </a>
                     </td>
                     <td>
                         <p class="nav-item">
-                            {{ $admin->role->role }}
+                            {{ $admin->bidang->bidang_name }}
                         </p>
                     </td>
-                    @if (!($admin->name == 'SuperAdmin'))
+                    @if (!($admin->admin_name == 'SuperAdmin'))
                         <td>
                             @if ($sessions['rolePrefix'] == 'super_admin')
-                                <a href="{{ url('/'. $sessions['rolePrefix']. '/edit/admin/'. $admin->username) }}" class="btn btn-primary">Edit</a> 
-                                <a href="{{ url('/'. $sessions['rolePrefix']. '/delete/admin/'. $admin->username) }}" class="btn btn-danger">Hapus</a></td>  
+                                <a href="{{ url('/'. $sessions['rolePrefix']. '/edit/admin/'. $admin->admin_username) }}" class="btn btn-primary">Edit</a> 
+                                <a href="{{ url('/'. $sessions['rolePrefix']. '/delete/admin/'. $admin->admin_username) }}" class="btn btn-danger">Hapus</a></td>  
                             @endif
                         </td>
                     @endif

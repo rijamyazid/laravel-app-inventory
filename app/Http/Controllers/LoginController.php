@@ -15,14 +15,16 @@ class LoginController extends Controller
             'password' => 'required'
         ]);
 
-        $admin = Admin::whereUsernameAndPassword($request->username, $request->password)->first();
+        $admin = Admin::where('admin_username', '=', $request->username)
+                ->where('admin_password', '=', $request->password)
+                ->first();
         
         if(!is_null($admin)){
             Session::put('username', $request->username);
-            Session::put('role', $admin->role->role);
-            Session::put('rolePrefix', $admin->role->role_prefix);
+            Session::put('role', $admin->bidang->bidang_name);
+            Session::put('rolePrefix', $admin->bidang->bidang_prefix);
             
-            return redirect('/' . $admin->role->role_prefix . '/dashboard');
+            return redirect('/' . $admin->bidang->bidang_prefix . '/dashboard');
         } else {
             throw ValidationException::withMessages(['username' => 'Username atau password salah']);
         }

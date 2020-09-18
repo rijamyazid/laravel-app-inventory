@@ -21,7 +21,7 @@
             <label for="roleInput">Bagian</label>
             <select name="role">
                 @foreach($roles as $role)
-                    <option value="{{$role->id}}">{{$role->role}}</option>
+                    <option value="{{$role->id}}">{{$role->bidang_name}}</option>
                 @endforeach
             </select>
         </div>

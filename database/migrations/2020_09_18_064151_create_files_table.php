@@ -15,12 +15,14 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->text('uuid')->unique()->nullable();
-            $table->text('filename')->nullable();
+            $table->text('file_uuid')->unique()->nullable();
+            $table->string('file_name', 30)->nullable();
+            $table->string('file_status', 10)->default('available');
+            $table->text('file_flag');
+            $table->bigInteger('admin_id')->unsigned()->nullable();
+            $table->foreign('admin_id')->references('id')->on('admin')->onDelete('set null');
             $table->bigInteger('folder_id')->unsigned()->nullable();
             $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
-            $table->string('created_by', 20)->nullable();
-            $table->foreign('created_by')->references('username')->on('admin')->onDelete('cascade');
             $table->timestamps();
         });
     }

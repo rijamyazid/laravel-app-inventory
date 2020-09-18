@@ -7,7 +7,7 @@
         @csrf
         <div class="form-group">
             <input type="text" class="form-control" name="foldername" placeholder="Nama Folder" 
-                value="{{ $folder->name }}">
+                value="{{ $folder->folder_name }}">
         </div>
         <div class="form-group">
             <input type="submit" class="btn btn-success" value="Buat Folder">

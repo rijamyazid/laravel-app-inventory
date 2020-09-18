@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Folder extends Model
 {
     protected $table = 'folders';
-    protected $fillable = ['name', 'url_path', 'parent_path', 'created_by', 'folder_role'];
+    protected $fillable = ['folder_name', 'url_path', 'parent_path', 'folder_status', 'folder_flag', 'admin_id', 'bidang_id'];
 
     public function admin(){
         return $this->belongsTo('App\Admin', 'created_by', 'username');

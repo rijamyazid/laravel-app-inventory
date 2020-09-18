@@ -35,15 +35,15 @@
                     </a>
                 </li>
                 @foreach ($roles as $r)        
-                    @if ($r->role != 'Super Admin')
+                    @if ($r->bidang_name != 'Super Admin')
                         <li class="nav-item">
-                        @if ($sessions['side_loc']  == $r->role_prefix)
-                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $r->role_prefix . '/folder/') }}">
+                        @if ($sessions['side_loc']  == $r->bidang_prefix)
+                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $r->bidang_prefix . '/folder/') }}">
                         @else
-                            <a class="nav-link side-link" href="{{ url('/'. $r->role_prefix . '/folder/') }}">
+                            <a class="nav-link side-link" href="{{ url('/'. $r->bidang_prefix . '/folder/') }}">
                         @endif
                             <span class="mr-2" data-feather="folder"></span>
-                                {{ $r->role }}
+                                {{ $r->bidang_name }}
                             </a>
                         </li>
                     @endif

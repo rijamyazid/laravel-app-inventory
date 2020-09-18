@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Folder;
 use App\File;
-use App\Role;
+use App\Bidang;
 use App\Admin;
 
 class AdminController extends Controller
@@ -18,7 +18,7 @@ class AdminController extends Controller
         Session::put('side_loc', 'dashboard');
 
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
 
         return view('content.index', 
                 [ 'roleS' => Session::get('role'), 
@@ -32,7 +32,7 @@ class AdminController extends Controller
 
         $sessions = Session::all();
         $admin = Admin::get();
-        $roles = Role::orderBy('role', 'asc')->get();      
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();      
 
         return view('content.admin.view', 
             ['admin' => $admin ,
@@ -44,7 +44,7 @@ class AdminController extends Controller
     public function createAdmin(){
         $admin = Admin::get();
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         return view('content.admin.create', 
             ['admin' => $admin,
              'role' => 'super_admin',
@@ -66,19 +66,19 @@ class AdminController extends Controller
         $role = $request->role;
 
         Admin::create([
-            'username' => $username,
-            'password' => $password,
-            'name' => $name,
-            'role_id' => $role,
+            'admin_username' => $username,
+            'admin_password' => $password,
+            'admin_name' => $name,
+            'bidang_id' => $role,
         ]);
 
         return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 
     public function editAdmin($role_prefix, $username){
-        $admin = Admin::where('username' , '=' , $username)->first();
+        $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         
         return view('content.admin.edit', 
             ['admin' => $admin,
@@ -94,20 +94,20 @@ class AdminController extends Controller
         //     'name' => 'required',
         // ]);
 
-        $admin = Admin::where('username' , '=' , $username)->first();
+        $admin = Admin::where('admin_username' , '=' , $username)->first();
 
-        $admin->password = $request->password;
-        $admin->name = $request->name;
-        $admin->role_id = $request->role;
+        $admin->admin_password = $request->password;
+        $admin->admin_name = $request->name;
+        $admin->bidang_id = $request->role;
         $admin->save();
 
         return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 
     public function deleteAdmin($role_prefix, $username){
-        $admin = Admin::where('username' , '=' , $username)->first();
+        $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
 
         $admin->delete();
 

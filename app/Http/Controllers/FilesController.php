@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use App\File;
 use App\Folder;
-use App\Role;
+use App\Bidang;
 use Alert;
 
 class FilesController extends Controller
@@ -15,10 +15,10 @@ class FilesController extends Controller
     public function create($role_prefix, $url_path=''){
         // return view('admin.files.create', ['role' => $role_prefix, 'url_path' => $url_path]);
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('folder_role', '=', $role_prefix)->get();
+                ->where('bidang_id', '=', \Helper::getBidangByPrefix($role_prefix)->id)->get();
                 
         return view('content.files.create', 
             ['url_path'=> $url_path, 
@@ -47,16 +47,16 @@ class FilesController extends Controller
                 $uploader = Session::get('user');
 
                 if($url_path == ''){
-                    $folder = Folder::where('parent_path', 'public')->where('folder_role', $role_prefix)->first();
+                    $folder = Folder::where('parent_path', 'public')->where('bidang_id', \Helper::getBidangByPrefix($role_prefix)->id)->first();
                 } else {
                     $folder = Folder::where('url_path', $url_path)->first();
                 }
                 
                 File::create([
-                    'uuid' => $uuid,
-                    'filename' => $filename,
+                    'file_uuid' => $uuid,
+                    'file_name' => $filename,
                     'folder_id' => $folder['id'],
-                    'created_by' => Session::get('username'),
+                    'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
                 ]);
             }
         }
@@ -66,9 +66,9 @@ class FilesController extends Controller
     }
 
     public function destroy($role_prefix, $uuid){
-        $file = File::where('uuid', $uuid)->first();
+        $file = File::where('file_uuid', $uuid)->first();
 
-        $filePath = $file->folder->parent_path . '/' . $file->folder->name .'/'. $file->uuid;
+        $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
         Storage::delete($filePath);
 
         $file->delete();

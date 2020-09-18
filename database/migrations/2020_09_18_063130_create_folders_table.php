@@ -15,10 +15,15 @@ class CreateFoldersTable extends Migration
     {
         Schema::create('folders', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->text('name');
+            $table->string('folder_name', 30);
+            $table->text('url_path');
             $table->text('parent_path');
-            $table->string('created_by', 20);
-            $table->foreign('created_by')->references('username')->on('admin')->onDelete('cascade');
+            $table->string('folder_status', 10)->default('available');
+            $table->text('folder_flag')->default('public');
+            $table->bigInteger('admin_id')->unsigned()->nullable();
+            $table->foreign('admin_id')->references('id')->on('admin')->onDelete('set null');
+            $table->biginteger('bidang_id')->unsigned()->nullable();
+            $table->foreign('bidang_id')->references('id')->on('bidang')->onDelete('cascade');
             $table->timestamps();
         });
     }

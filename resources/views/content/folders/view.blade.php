@@ -66,7 +66,7 @@
                     <td>
                         <a class="nav-link" href="{{ url("$role/folder/$folder->url_path") }}">
                             <span class="mr-3" data-feather="folder"></span>
-                            {{ $folder->name }}
+                            {{ $folder->folder_name }}
                         </a>
                     </td>
                     <td>
@@ -84,22 +84,22 @@
             @foreach ($files as $file)
                 <tr>
                     <td><a href="{{ Storage::disk('local')->url($file->folder->parent_path . '/' .
-                                $file->folder->name . '/' .
-                                $file->uuid) }}" target="_blank" >
+                                $file->folder->folder_name . '/' .
+                                $file->file_uuid) }}" target="_blank" >
                                 
                                 <span class="mr-3" data-feather="file"></span>
-                                {{$file->filename}}
+                                {{$file->file_name}}
                         </a>
                     </td>
                     <td>
                         @if ($sessions['rolePrefix'] == 'super_admin')
-                            <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
-                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                            <a href="{{ url("$role/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
+                            <a href="{{ url("$role/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a></td>
                         @else
                             @if ($sessions['rolePrefix'] == $role)
-                                <a href="{{ url("$role/destroy/file/$file->uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
+                                <a href="{{ url("$role/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
                             @endif
-                            <a href="{{ url("$role/download/file/$file->uuid") }}" class="btn btn-success">Download</a></td>
+                            <a href="{{ url("$role/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a></td>
                         @endif
                     </td>
                 </tr>

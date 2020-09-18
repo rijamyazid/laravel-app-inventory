@@ -8,15 +8,14 @@ class Admin extends Model
 {
     public $incrementing = false;
     protected $table='admin';
-    protected $primaryKey = 'username';
-    protected $fillable = ['username', 'password', 'name', 'role_id'];
+    protected $fillable = ['admin_username', 'admin_password', 'admin_name', 'bidang_id'];
 
-    public function role(){
-        return $this->belongsTo('App\Role');
+    public function bidang(){
+        return $this->belongsTo('App\Bidang', 'bidang_id', 'id');
     }
 
     public function folders(){
-        return $this->hasMany('App\Folder', 'created_by', 'username');
+        return $this->hasMany('App\Folder', 'folder_id', 'id');
     }
 
     public function files(){

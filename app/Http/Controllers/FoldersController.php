@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use App\Role;
+use App\Admin;
+use App\Bidang;
 use App\Folder;
 use App\File;
 use Alert;
@@ -17,10 +18,10 @@ class FoldersController extends Controller
     public function create($role_prefix, $url_path=''){
         // return view('admin.create_table', ['url_path'=> $url_path,'role' => $role_prefix]);
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('folder_role', '=', $role_prefix)->get();
+                ->where('bidang_id', '=', \Helper::getBidangByPrefix($role_prefix)->id)->get();
                 
         return view('content.folders.create', 
             ['url_path'=> $url_path, 
@@ -46,11 +47,11 @@ class FoldersController extends Controller
             $url_path_new = $request->folder_name;
             Storage::makeDirectory($base_path. '/' .$url_path_new);
             Folder::create([
-                'name' => $newFolderName,
+                'folder_name' => $newFolderName,
                 'url_path' => $url_path_new,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
-                'created_by' => Session::get('username'),
-                'folder_role' => $role_prefix
+                'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
+                'bidang_id' => \Helper::getBidangByPrefix($role_prefix)->id
             ]);
             Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/');
@@ -59,11 +60,11 @@ class FoldersController extends Controller
         } else {
             Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
             Folder::create([
-                'name' => $newFolderName,
+                'folder_name' => $newFolderName,
                 'url_path' => $url_path_new.'/'.$request->folder_name,
                 'parent_path' => self::getFolderPath($role_prefix, $url_path_new.'/'.$request->folder_name),
-                'created_by' => Session::get('username'),
-                'folder_role' => $role_prefix
+                'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
+                'bidang_id' => \Helper::getBidangByPrefix($role_prefix)->id
             ]);
             Alert::success('Folder Berhasil Ditambah!');
             return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
@@ -75,21 +76,22 @@ class FoldersController extends Controller
         Session::put('side_loc', $role_prefix);
 
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidang = Bidang::where('bidang_prefix', '=', $role_prefix)->first();
         if($url_path == ''){
             $folders = Folder::where('parent_path', 'public/'.$role_prefix)
-                ->orderBy('name', 'asc')->get();
+                ->orderBy('folder_name', 'asc')->get();
             $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('parent_path', '=', 'public')
-                ->where('folder_role', $role_prefix)
-                ->orderBy('filename', 'asc')->get();
+                ->where('bidang_id', $bidang->id)
+                ->orderBy('file_name', 'asc')->get();
             // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
         } else {
             $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)
-                ->orderBy('name', 'asc')->get();
+                ->orderBy('folder_name', 'asc')->get();
             $files = File::join('folders', 'folder_id','=', 'folders.id')
                 ->where('url_path', '=', $url_path)
-                ->orderBy('filename', 'asc')->get();
+                ->orderBy('file_name', 'asc')->get();
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         }
 
@@ -104,7 +106,7 @@ class FoldersController extends Controller
     }
 
     public function edit($role_prefix, $folderID){
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $folder = Folder::find($folderID);
         $sessions = Session::all();
         return view('content.folders.edit', 
@@ -121,13 +123,13 @@ class FoldersController extends Controller
 
         $folder = Folder::find($folderID);
 
-        $oldFolderName = $folder->name;
+        $oldFolderName = $folder->folder_name;
         $oldUrlPath = $folder->url_path;
         $newFolderName = $request->foldername;
 
         Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
 
-        $folder->name = $newFolderName;
+        $folder->folder_name = $newFolderName;
         $folder->save();
 
         $folders = Folder::where('url_path', 'like', $folder->url_path . '%')->get();
@@ -144,7 +146,7 @@ class FoldersController extends Controller
     public function delete($role_prefix, $folder_id){
         $folder = Folder::find($folder_id);
 
-        Storage::deleteDirectory($folder->parent_path.'/'.$folder->name);
+        Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         Alert::warning('Folder Berhasil Dihapus!');
@@ -157,11 +159,11 @@ class FoldersController extends Controller
         ]);
 
         $sessions = Session::all();
-        $roles = Role::orderBy('role', 'asc')->get();
+        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-            ->where('filename', 'like', $request->q . '%')
-            ->where('folders.folder_role', '=', $request->bidang)
-            ->orderBy('filename', 'asc')->get();
+            ->where('file_name', 'like', $request->q . '%')
+            ->where('folders.bidang_id', '=', \Helper::getBidangByPrefix($request->bidang)->id)
+            ->orderBy('file_name', 'asc')->get();
 
         return view('content.folders.view', 
             ['url_path'=> '', 
@@ -182,17 +184,21 @@ class FoldersController extends Controller
         $roleName = $request->foldername;
         $rolePrefix = self::getRolePrefix($roleName);
 
+        $admin = Admin::where('admin_username', '=', Session::get('username'))->first();
         Storage::makeDirectory('public/' . $rolePrefix);
+        Bidang::create([
+            'bidang_name' => $roleName,
+            'bidang_prefix' => $rolePrefix
+        ]);
+
+        $bidang = Bidang::where('bidang_prefix', '=', $rolePrefix)->first();
         Folder::create([
-            'name' => $rolePrefix,
+            'folder_name' => $rolePrefix,
             'parent_path' => 'public',
-            'created_by' => Session::get('username'),
-            'folder_role' => $rolePrefix
+            'admin_id' => $admin->id,
+            'bidang_id' => $bidang->id
         ]);
-        Role::create([
-            'role' => $roleName,
-            'role_prefix' => $rolePrefix
-        ]);
+        
 
         return redirect('/' . $rolePrefix . '/folder');
     }
