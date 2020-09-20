@@ -14,7 +14,7 @@ use App\Admin;
 class AdminController extends Controller
 {
 
-    public function index($role_prefix){
+    public function index($bidangPrefix){
         Session::put('side_loc', 'dashboard');
 
         $sessions = Session::all();
@@ -22,7 +22,7 @@ class AdminController extends Controller
 
         return view('content.index', 
                 [ 'roleS' => Session::get('role'), 
-                    'role' => $role_prefix,
+                    'role' => $bidangPrefix,
                     'sessions' => $sessions,
                     'roles' => $roles,]);
     }
@@ -75,7 +75,7 @@ class AdminController extends Controller
         return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 
-    public function editAdmin($role_prefix, $username){
+    public function editAdmin($bidangPrefix, $username){
         $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -104,7 +104,7 @@ class AdminController extends Controller
         return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 
-    public function deleteAdmin($role_prefix, $username){
+    public function deleteAdmin($bidangPrefix, $username){
         $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -114,8 +114,8 @@ class AdminController extends Controller
         return redirect('/'. Session::get('rolePrefix') .'/view/admin');
     }
 
-    public function getFolderPath($role_prefix, $url_path){
-        $base_path = 'public/'.$role_prefix;
+    public function getFolderPath($bidangPrefix, $url_path){
+        $base_path = 'public/'.$bidangPrefix;
 
         if(count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);

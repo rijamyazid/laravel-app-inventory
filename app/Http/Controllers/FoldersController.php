@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Helper;
 use App\Admin;
 use App\Bidang;
 use App\Folder;
@@ -15,108 +17,110 @@ use Alert;
 class FoldersController extends Controller
 {
 
-    public function create($role_prefix, $url_path=''){
+    public function create($bidangPrefix, $url_path=''){
         // return view('admin.create_table', ['url_path'=> $url_path,'role' => $role_prefix]);
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
-        $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
-        $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('bidang_id', '=', \Helper::getBidangByPrefix($role_prefix)->id)->get();
+        $folders = Folder::where('parent_path', 'public/' . $bidangPrefix)->get();
+        // $files = File::join('folders', 'folder_id','=', 'folders.id')
+        //         ->where('bidang_id', '=', \Helper::getBidangByPrefix($bidangPrefix)->id)->get();
                 
         return view('content.folders.create', 
             ['url_path'=> $url_path, 
-            'role' => $role_prefix,
+            'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles,
-            'folders' => $folders, 
-            'files' => $files]);
+            'folders' => $folders
+            ]);
     }
 
-    public function store($role_prefix, $url_path='', Request $request){
+    public function store($bidangPrefix, $url_path='', Request $request){
 
-        $base_path = 'public/' . $role_prefix;
+        $base_path = 'public/' . $bidangPrefix;
+        $folderFlag = 'public';
 
-        $this->validate($request,[
-            'folder_name' => 'required',
-        ]);
+        if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
+        if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
 
         $newFolderName = $request->folder_name;
-
-        $url_path_new = $url_path;
-        if($url_path == ''){
-            $url_path_new = $request->folder_name;
-            Storage::makeDirectory($base_path. '/' .$url_path_new);
-            Folder::create([
-                'folder_name' => $newFolderName,
-                'url_path' => $url_path_new,
-                'parent_path' => self::getFolderPath($role_prefix, $url_path_new),
-                'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
-                'bidang_id' => \Helper::getBidangByPrefix($role_prefix)->id
-            ]);
-            Alert::success('Folder Berhasil Ditambah!');
-            return redirect('/'.$role_prefix.'/folder/');
-            // return redirect('/'.$role_prefix.'/folder/')->with(['successFolder' => 'Folder '.$newFolderName.' berhasil ditambah!']);
-            
-        } else {
-            Storage::makeDirectory($base_path. '/' .$url_path_new.'/'.$request->folder_name);
-            Folder::create([
-                'folder_name' => $newFolderName,
-                'url_path' => $url_path_new.'/'.$request->folder_name,
-                'parent_path' => self::getFolderPath($role_prefix, $url_path_new.'/'.$request->folder_name),
-                'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
-                'bidang_id' => \Helper::getBidangByPrefix($role_prefix)->id
-            ]);
-            Alert::success('Folder Berhasil Ditambah!');
-            return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/');
-            // return redirect('/'.$role_prefix.'/folder/'.$url_path_new.'/')->with(['successFolder' => 'Folder '.$newFolderName.' berhasil ditambah!']);
+        if($request->folder_flag == 'private'){
+            $folderFlag = 'super_admin,'.$bidangPrefix;
+        } else if($request->folder_flag == 'pilih'){
+            $folderFlag = 'super_admin,'.$bidangPrefix;
+            $ffbS = $request->folder_flag_bidang;
+            foreach ($ffbS as $ffb) {
+                $folderFlag .= ',' . $ffb;
+            }
         }
+ 
+        if(empty($url_path)) $url_path_new = $request->folder_name;
+        else $url_path_new = $url_path . '/'. $request->folder_name;
+
+        Storage::makeDirectory($base_path. '/' .$url_path_new);
+        Folder::create([
+            'folder_name' => $newFolderName,
+            'url_path' => $url_path_new,
+            'parent_path' => self::getFolderPath($bidangPrefix, $url_path_new),
+            'folder_flag' => $folderFlag,
+            'admin_id' => Helper::getAdminByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+        Alert::success('Folder Berhasil Ditambah!');
+        return redirect('/'.$bidangPrefix.'/folder/'.$url_path);
     }
 
-    public function view($role_prefix, $url_path=''){
-        Session::put('side_loc', $role_prefix);
+    public function view($bidangPrefix, $url_path = null){
+        Session::put('side_loc', $bidangPrefix);
 
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
-        $bidang = Bidang::where('bidang_prefix', '=', $role_prefix)->first();
-        if($url_path == ''){
-            $folders = Folder::where('parent_path', 'public/'.$role_prefix)
+        $bidang = Bidang::where('bidang_prefix', '=', $bidangPrefix)->first();
+        // if($url_path == ''){
+        //     $folders = Folder::where('parent_path', 'public/'.$bidangPrefix)
+        //         ->orderBy('folder_name', 'asc')->get();
+        //     $files = File::join('folders', 'folder_id', '=', 'folders.id')
+        //         ->where('parent_path', '=', 'public')
+        //         ->where('bidang_id', $bidang->id)
+        //         ->orderBy('file_name', 'asc')->get();
+        //     // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
+        // } else {
+            if(is_null($url_path)) $url_path_new = 'public/'.$bidangPrefix;
+            else $url_path_new = 'public/'.$bidangPrefix.'/'.$url_path;
+
+            $folders = Folder::where('parent_path', '=', $url_path_new)
+                ->where(function($query) use ($sessions){
+                    $query->where('folder_flag', '=', 'public')
+                        ->orWhere('folder_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
+                })
                 ->orderBy('folder_name', 'asc')->get();
             $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('parent_path', '=', 'public')
-                ->where('bidang_id', $bidang->id)
-                ->orderBy('file_name', 'asc')->get();
-            // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
-        } else {
-            $folders = Folder::where('parent_path', 'public/'.$role_prefix.'/'.$url_path)
-                ->orderBy('folder_name', 'asc')->get();
-            $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('url_path', '=', $url_path)
+                ->where('url_path', '=', $url_path_new)
                 ->orderBy('file_name', 'asc')->get();
             // $files = File::with('folders')->where('url_path', $url_path)->get();
-        }
+        // }
 
         return view('content.folders.view', 
             ['url_path'=> $url_path,
             'locations' => self::locations($url_path), 
-            'role' => $role_prefix,
+            'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles,
             'folders' => $folders, 
             'files' => $files]);
     }
 
-    public function edit($role_prefix, $folderID){
+    public function edit($bidangPrefix, $folderID){
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $folder = Folder::find($folderID);
         $sessions = Session::all();
         return view('content.folders.edit', 
             ['folder'=>$folder, 
-            'role' => $role_prefix,
+            'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles]);
     }
 
-    public function update($role_prefix, $folderID, Request $request){
+    public function update($bidangPrefix, $folderID, Request $request){
         $this->validate($request,[
             'foldername' => 'required',
         ]);
@@ -140,20 +144,20 @@ class FoldersController extends Controller
         }
 
         Alert::success('Folder Berhasil Di Edit!');
-        return redirect('/'. $role_prefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
+        return redirect('/'. $bidangPrefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
     }
 
-    public function delete($role_prefix, $folder_id){
+    public function delete($bidangPrefix, $folder_id){
         $folder = Folder::find($folder_id);
 
         Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         Alert::warning('Folder Berhasil Dihapus!');
-        return redirect('/'.$role_prefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
     }
 
-    public function search($role, Request $request){
+    public function search($bidangPrefix, Request $request){
         $this->validate($request,[
             'q' => 'required',
         ]);
@@ -161,13 +165,14 @@ class FoldersController extends Controller
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
+            ->join('bidang', 'folders.bidang_id', '=', 'bidang.id')
             ->where('file_name', 'like', $request->q . '%')
-            ->where('folders.bidang_id', '=', \Helper::getBidangByPrefix($request->bidang)->id)
+            ->where('bidang.bidang_prefix', '=', $bidangPrefix)
             ->orderBy('file_name', 'asc')->get();
 
         return view('content.folders.view', 
             ['url_path'=> '', 
-            'role' => $role,
+            'role' => $bidangPrefix,
             'locations' => [],
             'sessions' => $sessions,
             'roles' => $roles,
@@ -208,8 +213,8 @@ class FoldersController extends Controller
         return implode('_', $split);
     }
 
-    public function getFolderPath($role_prefix, $url_path){
-        $base_path = 'public/'.$role_prefix;
+    public function getFolderPath($bidangPrefix, $url_path){
+        $base_path = 'public/'.$bidangPrefix;
 
         if(count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);

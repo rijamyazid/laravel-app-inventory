@@ -12,25 +12,25 @@ use Alert;
 
 class FilesController extends Controller
 {
-    public function create($role_prefix, $url_path=''){
+    public function create($bidangPrefix, $url_path=''){
         // return view('admin.files.create', ['role' => $role_prefix, 'url_path' => $url_path]);
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
-        $folders = Folder::where('parent_path', 'public/' . $role_prefix)->get();
+        $folders = Folder::where('parent_path', 'public/' . $bidangPrefix)->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('bidang_id', '=', \Helper::getBidangByPrefix($role_prefix)->id)->get();
+                ->where('bidang_id', '=', \Helper::getBidangByPrefix($bidangPrefix)->id)->get();
                 
         return view('content.files.create', 
             ['url_path'=> $url_path, 
-            'role' => $role_prefix,
+            'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles,
             'folders' => $folders, 
             'files' => $files]);
     }
 
-    public function store($role_prefix, $url_path='', Request $request){
-        $basePath = 'public/' . $role_prefix;
+    public function store($bidangPrefix, $url_path='', Request $request){
+        $basePath = 'public/' . $bidangPrefix;
 
         $this->validate($request,[
             'filenames' => 'required',
@@ -47,7 +47,7 @@ class FilesController extends Controller
                 $uploader = Session::get('user');
 
                 if($url_path == ''){
-                    $folder = Folder::where('parent_path', 'public')->where('bidang_id', \Helper::getBidangByPrefix($role_prefix)->id)->first();
+                    $folder = Folder::where('parent_path', 'public')->where('bidang_id', \Helper::getBidangByPrefix($bidangPrefix)->id)->first();
                 } else {
                     $folder = Folder::where('url_path', $url_path)->first();
                 }
@@ -62,10 +62,10 @@ class FilesController extends Controller
         }
         
         Alert::success('File Berhasil Ditambah!');
-        return redirect($role_prefix . '/folder/' .$url_path);
+        return redirect($bidangPrefix . '/folder/' .$url_path);
     }
 
-    public function destroy($role_prefix, $uuid){
+    public function destroy($bidangPrefix, $uuid){
         $file = File::where('file_uuid', $uuid)->first();
 
         $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
@@ -74,14 +74,14 @@ class FilesController extends Controller
         $file->delete();
 
         Alert::warning('File Berhasil Dihapus!');
-        return redirect('/' . $role_prefix . '/folder/' . $file->folder->url_path);
+        return redirect('/' . $bidangPrefix . '/folder/' . $file->folder->url_path);
     }
 
-    public function download($role_prefix, $uuid){
-        $file = File::where('uuid', $uuid)->first();
+    public function download($bidangPrefix, $uuid){
+        $file = File::where('file_uuid', $uuid)->first();
 
-        $filePath = $file->folder->parent_path . '/' . $file->folder->name .'/'. $file->uuid;
-        $fileName = $file->filename;
+        $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
+        $fileName = $file->file_name;
 
         return Storage::download($filePath, $fileName);
     }

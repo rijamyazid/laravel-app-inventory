@@ -10,7 +10,7 @@ class Folder extends Model
     protected $fillable = ['folder_name', 'url_path', 'parent_path', 'folder_status', 'folder_flag', 'admin_id', 'bidang_id'];
 
     public function admin(){
-        return $this->belongsTo('App\Admin', 'created_by', 'username');
+        return $this->belongsTo('App\Admin', 'admin_id', 'id');
     }
 
     public function files(){
