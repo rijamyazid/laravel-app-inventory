@@ -14,6 +14,6 @@ class File extends Model
     }
 
     public function folder(){
-        return $this->belongsTo('App\Folder');
+        return $this->belongsTo('App\Folder', 'folder_id', 'id');
     }
 }

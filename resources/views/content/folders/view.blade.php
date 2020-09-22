@@ -68,8 +68,8 @@
                     <div class="col">
                         <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder">
                     </div>
-                    <div class="col-3">
-                        <input type="submit" class="btn btn-success" value="Tambah">
+                    <div class="col-4">
+                        <input type="submit" class="btn btn-success" value="Tambah Folder">
                     </div>
                 </div>
                 <hr class="mb-2">
@@ -79,32 +79,32 @@
                 <div class="row">
                     <div class="col">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="folder_flag" value="public" id="public" checked>
-                            <label class="form-check-label" for="public">Public</label>
+                            <input class="form-check-input" type="radio" name="folder_flag" value="public" id="folder_public" checked>
+                            <label class="form-check-label" for="folder_public">Public</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="folder_flag" value="private" id="private">
-                            <label class="form-check-label" for="private">Private</label>
+                            <input class="form-check-input" type="radio" name="folder_flag" value="private" id="folder_private">
+                            <label class="form-check-label" for="folder_private">Private</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="folder_flag" value="pilih" id="pilih">
-                            <label class="form-check-label" for="pilih">Pilih</label>
+                            <input class="form-check-input" type="radio" name="folder_flag" value="pilih" id="folder_pilih">
+                            <label class="form-check-label" for="folder_pilih">Pilih</label>
                         </div>
                     </div>
                 </div>
-                <div class="row" id="akses-pilih" style="display: none">
+                <div class="row" id="folder_akses_pilih" style="display: none">
                     <div class="col">
                         <hr class="mb-2">
                         <div class="row">
                             <div class="col"><label> <strong>Pilih satu atau lebih Bidang</strong> </label></div>
                         </div>
-                        <div id="akses_pilih" class="row">
+                        <div class="row">
                             <div class="col">
                                 @foreach ($roles as $bidang)
                                 @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $role))
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="folder_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="{{$bidang->bidang_prefix}}">
-                                        <label class="form-check-label" for="{{$bidang->bidang_prefix}}">{{$bidang->bidang_name}}</label>
+                                        <input class="form-check-input" type="checkbox" name="folder_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="folder_{{$bidang->bidang_prefix}}">
+                                        <label class="form-check-label" for="folder_{{$bidang->bidang_prefix}}">{{$bidang->bidang_name}}</label>
                                     </div>
                                 @endif
                                 @endforeach
@@ -117,13 +117,56 @@
     {{-- FORM TAMBAH FOLDER --}}
     {{-- FORM TAMBAH FILE --}}
         <div class="col-6" id="form-tambah-file" style="display: none">
-            <form action="{{ url($role . '/create/bidang-baru') }}" method="POST">
+            <form class="border p-3" action="/{{$role}}/store/files/{{$url_path}}" method="POST" enctype="multipart/form-data">
+                <h4>Tambah File</h4>
                 @csrf
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
+                <div class="row">
+                    <div class="col">
+                        <input type="file" class="form-control-file" name="file_name[]" multiple>
+                    </div>
+                    <div class="col-4">
+                        <input type="submit" class="btn btn-success" value="Tambah File">
+                    </div>
                 </div>
-                <div class="form-group">    
-                    <input type="submit" class="btn btn-success w-100" value="Tambah">  
+                <hr class="mb-2">
+                <div class="row">
+                    <div class="col"><label> <strong>Hak Akses</strong> </label></div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="file_flag" value="public" id="file_public" checked>
+                            <label class="form-check-label" for="file_public">Public</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="file_flag" value="private" id="file_private">
+                            <label class="form-check-label" for="file_private">Private</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="file_flag" value="pilih" id="file_pilih">
+                            <label class="form-check-label" for="file_pilih">Pilih</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="file_akses_pilih" style="display: none">
+                    <div class="col">
+                        <hr class="mb-2">
+                        <div class="row">
+                            <div class="col"><label> <strong>Pilih satu atau lebih Bidang</strong> </label></div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                @foreach ($roles as $bidang)
+                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $role))
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="file_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="file_{{$bidang->bidang_prefix}}">
+                                        <label class="form-check-label" for="file_{{$bidang->bidang_prefix}}">{{$bidang->bidang_name}}</label>
+                                    </div>
+                                @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -250,15 +293,26 @@
         }
     });
 
-    $("#pilih").click(function(){
-        $("#akses-pilih").slideDown();
+    $("#folder_pilih").click(function(){
+        $("#folder_akses_pilih").slideDown();
     });
-    $("#public").click(function(){
-        $("#akses-pilih").slideUp();
+    $("#folder_public").click(function(){
+        $("#folder_akses_pilih").slideUp();
     });
-    $("#private").click(function(){
-        $("#akses-pilih").slideUp();
+    $("#folder_private").click(function(){
+        $("#folder_akses_pilih").slideUp();
     });
+
+    $("#file_pilih").click(function(){
+        $("#file_akses_pilih").slideDown();
+    });
+    $("#file_public").click(function(){
+        $("#file_akses_pilih").slideUp();
+    });
+    $("#file_private").click(function(){
+        $("#file_akses_pilih").slideUp();
+    });
+
 </script>
 
 

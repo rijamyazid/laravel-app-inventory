@@ -14,5 +14,10 @@
             return Admin::where('admin_username', '=', $username)->first();
         }
 
+        static function getFolderByUrl($url, $bidangPrefix){
+            if(is_null($url)) return Folder::where('parent_path', '=', 'public')->where('bidang_id', '=', \Helper::getBidangByPrefix($bidangPrefix)->id)->first();
+            else return Folder::where('url_path', '=', $url)->first();
+        }
+
     }
 ?>

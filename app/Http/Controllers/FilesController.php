@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;  
+use Helper;
 use App\File;
 use App\Folder;
 use App\Bidang;
@@ -29,40 +31,47 @@ class FilesController extends Controller
             'files' => $files]);
     }
 
-    public function store($bidangPrefix, $url_path='', Request $request){
+    public function store($bidangPrefix, $url_path = null, Request $request){
         $basePath = 'public/' . $bidangPrefix;
+        $fileFlag = 'public';
 
-        $this->validate($request,[
-            'filenames' => 'required',
-        ]);
-
-        if($request->hasFile('filenames')){
-            foreach ($request->file('filenames') as $file) {
-                $storePath = Storage::putFile($basePath. '/'. $url_path, $file);
-
-                $filename = $file->getClientOriginalName();
-                // echo ($filename = $file->getClientOriginalName());
-                $uuid = self::getUUID($storePath);
-                // echo ($enc_filename = self::getUUID($path));
-                $uploader = Session::get('user');
-
-                if($url_path == ''){
-                    $folder = Folder::where('parent_path', 'public')->where('bidang_id', \Helper::getBidangByPrefix($bidangPrefix)->id)->first();
-                } else {
-                    $folder = Folder::where('url_path', $url_path)->first();
-                }
-                
-                File::create([
-                    'file_uuid' => $uuid,
-                    'file_name' => $filename,
-                    'folder_id' => $folder['id'],
-                    'admin_id' => \Helper::getAdminByUsername(Session::get('username'))->id,
-                ]);
+        if(!$request->hasFile('file_name')) throw ValidationException::withMessages(['file_name' => 'Tambahkan minimal 1 file']);
+        if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)) throw ValidationException::withMessages(['file_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+    
+        if($request->file_flag == 'private'){
+            $fileFlag = 'super_admin,'.$bidangPrefix;
+        } else if($request->file_flag == 'pilih'){
+            $fileFlag = 'super_admin,'.$bidangPrefix;
+            $ffbS = $request->file_flag_bidang;
+            foreach ($ffbS as $ffb) {
+                $fileFlag .= ',' . $ffb;
             }
+        }
+
+        foreach ($request->file('file_name') as $file) {
+            is_null($url_path) ? $storePath = Storage::putFile($basePath, $file) 
+                : $storePath = Storage::putFile($basePath. '/'. $url_path, $file);
+
+            $filename = $file->getClientOriginalName();
+            // echo ($filename = $file->getClientOriginalName());
+            $uuid = self::getUUID($storePath);
+            // echo ($enc_filename = self::getUUID($path));
+             
+            File::create([
+                'file_uuid' => $uuid,
+                'file_name' => $filename,
+                'file_flag' => $fileFlag,
+                'admin_id' => Helper::getAdminByUsername(Session::get('username'))->id,
+                'folder_id' => Helper::getFolderByUrl($url_path, $bidangPrefix)->id
+            ]);
         }
         
         Alert::success('File Berhasil Ditambah!');
         return redirect($bidangPrefix . '/folder/' .$url_path);
+    }
+
+    public function move($bidangPrefix, $url_path = null) {
+        
     }
 
     public function destroy($bidangPrefix, $uuid){

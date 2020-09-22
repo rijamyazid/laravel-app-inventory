@@ -93,8 +93,12 @@ class FoldersController extends Controller
                         ->orWhere('folder_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
                 })
                 ->orderBy('folder_name', 'asc')->get();
-            $files = File::join('folders', 'folder_id','=', 'folders.id')
-                ->where('url_path', '=', $url_path_new)
+
+            $files = File::where('folder_id', '=', Helper::getFolderByUrl($url_path, $bidangPrefix)->id)
+                    ->where(function($query) use ($sessions){
+                    $query->where('file_flag', '=', 'public')
+                        ->orWhere('file_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
+                })
                 ->orderBy('file_name', 'asc')->get();
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         // }
@@ -144,7 +148,7 @@ class FoldersController extends Controller
         }
 
         Alert::success('Folder Berhasil Di Edit!');
-        return redirect('/'. $bidangPrefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
+        return redirect('/'. $bidangPrefix .'/folder'. self::deleteUrlPathLast($oldUrlPath));
     }
 
     public function delete($bidangPrefix, $folder_id){
@@ -154,7 +158,7 @@ class FoldersController extends Controller
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         Alert::warning('Folder Berhasil Dihapus!');
-        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+        return redirect('/'.$bidangPrefix.'/folder'.self::deleteUrlPathLast($tmpFolderLastPath));
     }
 
     public function search($bidangPrefix, Request $request){
@@ -245,7 +249,7 @@ class FoldersController extends Controller
             $split = explode('/', $url_path, -1);
             $merge = implode('/', $split);
 
-            return $merge;
+            return '/'.$merge;
         } else {
             return null;
         }
