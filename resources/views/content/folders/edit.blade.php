@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col">
-            <form class="border p-3" action="/{{$role}}/update/folder/{{$folder->id}}" method="POST">
+            <form class="border p-3" action="/{{$bidangPrefix}}/update/folder/{{$folder->id}}" method="POST">
                 <h4>Ubah Data Folder</h4>
                 @csrf
                 <div class="row">
@@ -48,8 +48,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                @foreach ($roles as $bidang)
-                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $role))
+                                @foreach ($bidangS as $bidang)
+                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $bidangPrefix))
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="folder_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="folder_{{$bidang->bidang_prefix}}" @if (in_array($bidang->bidang_prefix, $flags))
                                             checked
@@ -75,7 +75,7 @@
                         </div>
                         <div class="col-auto">
                     
-                            <a href="{{ url( "/$role/move/folder/$folder->id" ) }}" class="btn btn-primary">Pindahkan</a>
+                            <a href="{{ url( "/$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary">Pindahkan</a>
                         
                     </div>
                     </div>

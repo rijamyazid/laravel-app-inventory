@@ -5,7 +5,7 @@
 
     {{-- OPSI ATAS --}}
     <div class="row mt-3">
-    @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
+    @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
         {{-- TOMBOL TAMBAH FOLDER --}}
         <div class="col-md-auto col-sm mx-auto mb-2">
             <a href="#" class="btn btn-success btn-block" id="btn-tambah-folder">
@@ -22,9 +22,9 @@
             </a>
         </div>
         {{-- TOMBOL TAMBAH FILE --}}
-        @if (isset($sessions['move']))
+        @if (!is_null(Session::get('move')))
             <div class="col-md-auto col-sm mx-auto mb-2">
-                <a href="{{ url("/$role/moving/folder/$url_path") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
                     <span data-feather="file-plus"></span>
                     Pindahkan Ke folder ini
                 </a>
@@ -33,9 +33,9 @@
     @endif
         {{-- FORM PENCARIAN --}}
         <div class="col-md">
-            <form class="form-inline float-right" action="{{ url('/' . $role . '/search') }}" method="GET">
+            <form class="form-inline float-right" action="{{ url('/' . $bidangPrefix . '/search') }}" method="GET">
                 <div class="form-group mr-3">
-                    <input class="form-control" type="text" placeholder="Cari File" name="bidang" hidden value="{{ $role }}">
+                    <input class="form-control" type="text" placeholder="Cari File" name="bidang" hidden value="{{ $bidangPrefix }}">
                 </div>
                 <div class="form-group mr-3">
                     <input class="form-control" type="text" placeholder="Cari File" name="q">
@@ -69,7 +69,7 @@
     {{-- FORM TAMBAH FOLDER --}}
     <div class="row my-1">
         <div class="col-6" id="form-tambah-folder" style="display: none">
-            <form class="border p-3" action="/{{$role}}/creating/folder/{{$url_path}}" method="POST">
+            <form class="border p-3" action="/{{$bidangPrefix}}/creating/folder/{{$urlPath}}" method="POST">
                 <h4>Tambah Folder</h4>
                 @csrf
                 <div class="row">
@@ -108,8 +108,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                @foreach ($roles as $bidang)
-                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $role))
+                                @foreach ($bidangS as $bidang)
+                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $bidangPrefix))
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="folder_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="folder_{{$bidang->bidang_prefix}}">
                                         <label class="form-check-label" for="folder_{{$bidang->bidang_prefix}}">{{$bidang->bidang_name}}</label>
@@ -125,7 +125,7 @@
     {{-- FORM TAMBAH FOLDER --}}
     {{-- FORM TAMBAH FILE --}}
         <div class="col-6" id="form-tambah-file" style="display: none">
-            <form class="border p-3" action="/{{$role}}/store/files/{{$url_path}}" method="POST" enctype="multipart/form-data">
+            <form class="border p-3" action="/{{$bidangPrefix}}/store/files/{{$urlPath}}" method="POST" enctype="multipart/form-data">
                 <h4>Tambah File</h4>
                 @csrf
                 <div class="row">
@@ -164,8 +164,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                @foreach ($roles as $bidang)
-                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $role))
+                                @foreach ($bidangS as $bidang)
+                                @if ( ($bidang->bidang_prefix != 'super_admin') && ($bidang->bidang_prefix != $bidangPrefix))
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="file_flag_bidang[]" value="{{$bidang->bidang_prefix}}" id="file_{{$bidang->bidang_prefix}}">
                                         <label class="form-check-label" for="file_{{$bidang->bidang_prefix}}">{{$bidang->bidang_name}}</label>
@@ -185,10 +185,10 @@
     {{-- LOKASI FOLDER --}}
     <div class="row mt-1 mb-1">
         <div class="col">
-            <a href="{{ url('/'. $role . '/folder') }}"> <strong>Home</strong></a>
-            @foreach (Helper::folderLocation($url_path) as $path)
+            <a href="{{ url('/'. $bidangPrefix . '/folder') }}"> <strong>Home</strong></a>
+            @foreach (Helper::folderLocation($urlPath) as $path)
                 <a><strong> > </strong></a>
-                <a href="{{ url('/'. $role . '/folder/' . $path['urlPath']) }}"> <strong>{{ $path['path'] }}</strong></a>
+                <a href="{{ url('/'. $bidangPrefix . '/folder/' . $path['urlPath']) }}"> <strong>{{ $path['path'] }}</strong></a>
             @endforeach
         </div>
     </div>
@@ -218,16 +218,16 @@
             @foreach ($folders as $folder)
                 <tr>
                     <td>
-                        <a class="nav-link" href="{{ url("$role/folder/$folder->url_path") }}">
+                        <a class="nav-link" href="{{ url("$bidangPrefix/folder/$folder->url_path") }}">
                             <span class="mr-3" data-feather="folder"></span>
                             {{ $folder->folder_name }}
                         </a>
                     </td>
                     <td>
-                        @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
+                        @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
-                            <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary" >Edit</a>  
-                            <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm">Hapus</a>
+                            <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary" >Edit</a>  
+                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm">Hapus</a>
                         @endif
                     </td>
                     <td>
@@ -251,14 +251,14 @@
                         </a>
                     </td>
                     <td>
-                        @if ($sessions['rolePrefix'] == 'super_admin')
-                            <a href="{{ url("$role/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
-                            <a href="{{ url("$role/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
+                        @if (Session::get('rolePrefix') == 'super_admin')
+                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
+                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
                         @else
-                            @if ($sessions['rolePrefix'] == $role)
-                                <a href="{{ url("$role/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
+                            @if (Session::get('rolePrefix') == $bidangPrefix)
+                                <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
                             @endif
-                            <a href="{{ url("$role/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
+                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
                         @endif
                     </td>
                     <td>
@@ -275,24 +275,4 @@
     {{-- TAMPILAN FILE FOLDER --}}
 </div>
 </div>
-
-<div class="modal fade" id="modalMd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="modalMdTitle"></h4>
-            </div>
-            <div class="modal-body">
-                <div class="modalError"></div>
-                <div id="modalMdContent">
-                </div>
-            </div>
-        </div>
-    </div>
-  </div>
-
-
-
-
 @endsection

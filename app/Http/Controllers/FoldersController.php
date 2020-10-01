@@ -73,7 +73,7 @@ class FoldersController extends Controller
         Session::put('side_loc', $bidangPrefix);
 
         $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         $bidang = Bidang::where('bidang_prefix', '=', $bidangPrefix)->first();
         // if($url_path == ''){
         //     $folders = Folder::where('parent_path', 'public/'.$bidangPrefix)
@@ -103,13 +103,10 @@ class FoldersController extends Controller
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         // }
 
-        $data = array('url' => $urlPath);
-
         return view('content.folders.view', 
-            ['url_path'=> $urlPath,
-            'role' => $bidangPrefix,
-            'sessions' => $sessions,
-            'roles' => $roles,
+            ['urlPath'=> $urlPath,
+            'bidangPrefix' => $bidangPrefix,
+            'bidangS' => $bidangS,
             'folders' => $folders, 
             'files' => $files]);
     }
@@ -120,15 +117,14 @@ class FoldersController extends Controller
     }
 
     public function edit($bidangPrefix, $folderID){
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         $folder = Folder::find($folderID);
         $sessions = Session::all();
         return view('content.folders.edit', 
             ['folder'=>$folder, 
             'flags' => self::getFlags($folder->folder_flag),
-            'role' => $bidangPrefix,
-            'sessions' => $sessions,
-            'roles' => $roles]);
+            'bidangPrefix' => $bidangPrefix,
+            'bidangS' => $bidangS]);
     }
 
     private function getFlags($flags){
@@ -230,7 +226,7 @@ class FoldersController extends Controller
         ]);
 
         $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         $files = File::join('folders', 'folder_id','=', 'folders.id')
             ->join('bidang', 'folders.bidang_id', '=', 'bidang.id')
             ->where('file_name', 'like', $request->q . '%')
@@ -238,10 +234,9 @@ class FoldersController extends Controller
             ->orderBy('file_name', 'asc')->get();
 
         return view('content.folders.view', 
-            ['url_path'=> null,
-            'role' => $bidangPrefix,
-            'sessions' => $sessions,
-            'roles' => $roles,
+            ['urlPath'=> null,
+            'bidangPrefix' => $bidangPrefix,
+            'bidangS' => $bidangS,
             'folders' => [],
             'files' => $files]);
     }

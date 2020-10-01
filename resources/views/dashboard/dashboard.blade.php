@@ -25,30 +25,30 @@
         <div class="col-md-2" style="background-color: #436EB3;">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    @if ($sessions['side_loc'] == 'dashboard')
+                    @if (Session::get('side_loc') == 'dashboard')
                         <a class="nav-link side-link-active" style="background: #39C172" href="{{url('/'. $sessions['rolePrefix']) . '/dashboard'}}">
                     @else
-                        <a class="nav-link side-link" href="{{url('/'. $sessions['rolePrefix']) . '/dashboard'}}">
+                        <a class="nav-link side-link" href="{{url('/'. Session::get('rolePrefix')) . '/dashboard'}}">
                     @endif
                         <span class="mr-2" data-feather="home"></span>
                             Dashboard
                     </a>
                 </li>
-                @foreach ($roles as $r)        
-                    @if ($r->bidang_name != 'Super Admin')
+                @foreach ($bidangS as $bidang)        
+                    @if ($bidang->bidang_name != 'Super Admin')
                         <li class="nav-item">
-                        @if ($sessions['side_loc']  == $r->bidang_prefix)
-                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $r->bidang_prefix . '/folder/') }}">
+                        @if (Session::get('side_loc')  == $bidang->bidang_prefix)
+                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $bidang->bidang_prefix . '/folder/') }}">
                         @else
-                            <a class="nav-link side-link" href="{{ url('/'. $r->bidang_prefix . '/folder/') }}">
+                            <a class="nav-link side-link" href="{{ url('/'. $bidang->bidang_prefix . '/folder/') }}">
                         @endif
                             <span class="mr-2" data-feather="folder"></span>
-                                {{ $r->bidang_name }}
+                                {{ $bidang->bidang_name }}
                             </a>
                         </li>
                     @endif
                 @endforeach
-                @if ($sessions['rolePrefix'] == 'super_admin')
+                @if (Session::get('rolePrefix') == 'super_admin')
                     <li class="nav-item" >
                         <a class="nav-link side-link" href="#" id="btn-tambah-bidang">
                             <span class="mr-2" data-feather="folder-plus"></span>
@@ -67,7 +67,7 @@
                         </form>
                     </li>
                     <li class="nav-item">
-                    @if ($sessions['side_loc'] == 'kelola_user')
+                    @if (Session::get('side_loc') == 'kelola_user')
                         <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $sessions['rolePrefix']. '/view/admin') }}">
                     @else
                         <a class="nav-link side-link" href="{{ url('/'. $sessions['rolePrefix']. '/view/admin') }}">
