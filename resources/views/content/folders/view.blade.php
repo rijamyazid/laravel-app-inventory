@@ -22,6 +22,14 @@
             </a>
         </div>
         {{-- TOMBOL TAMBAH FILE --}}
+        @if (isset($sessions['move']))
+            <div class="col-md-auto col-sm mx-auto mb-2">
+                <a href="{{ url("/$role/moving/folder/$url_path") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                    <span data-feather="file-plus"></span>
+                    Pindahkan Ke folder ini
+                </a>
+            </div>
+        @endif
     @endif
         {{-- FORM PENCARIAN --}}
         <div class="col-md">
@@ -178,9 +186,9 @@
     <div class="row mt-1 mb-1">
         <div class="col">
             <a href="{{ url('/'. $role . '/folder') }}"> <strong>Home</strong></a>
-            @foreach ($locations as $location)
+            @foreach (Helper::folderLocation($url_path) as $path)
                 <a><strong> > </strong></a>
-                <a href="{{ url('/'. $role . '/folder/' . $location['locLink']) }}"> <strong>{{$location['loc']}}</strong></a>
+                <a href="{{ url('/'. $role . '/folder/' . $path['urlPath']) }}"> <strong>{{ $path['path'] }}</strong></a>
             @endforeach
         </div>
     </div>
@@ -216,14 +224,10 @@
                         </a>
                     </td>
                     <td>
-                        @if ($sessions['rolePrefix'] == 'super_admin')
-                            <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
+                        @if ($sessions['rolePrefix'] == 'super_admin' || $sessions['rolePrefix'] == $role)
+                            {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
+                            <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary" >Edit</a>  
                             <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm">Hapus</a>
-                        @else
-                            @if ($sessions['rolePrefix'] == $role)
-                                <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> 
-                                <a href="{{ url("$role/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm">Hapus</a> 
-                            @endif
                         @endif
                     </td>
                     <td>
@@ -272,48 +276,23 @@
 </div>
 </div>
 
-<script>
-    $("#btn-tambah-folder").click(function(){
-        if(!($("#form-tambah-file").is(":hidden"))){
-            $("#form-tambah-file").slideToggle(function(){
-                $("#form-tambah-folder").slideToggle();
-            });
-        } else {
-            $("#form-tambah-folder").slideToggle();
-        }
-    });
+<div class="modal fade" id="modalMd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalMdTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="modalError"></div>
+                <div id="modalMdContent">
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
 
-    $("#btn-tambah-file").click(function(){
-        if(!($("#form-tambah-folder").is(":hidden"))){
-            $("#form-tambah-folder").slideToggle(function(){
-                $("#form-tambah-file").slideToggle();
-            });
-        } else {
-            $("#form-tambah-file").slideToggle();
-        }
-    });
 
-    $("#folder_pilih").click(function(){
-        $("#folder_akses_pilih").slideDown();
-    });
-    $("#folder_public").click(function(){
-        $("#folder_akses_pilih").slideUp();
-    });
-    $("#folder_private").click(function(){
-        $("#folder_akses_pilih").slideUp();
-    });
-
-    $("#file_pilih").click(function(){
-        $("#file_akses_pilih").slideDown();
-    });
-    $("#file_public").click(function(){
-        $("#file_akses_pilih").slideUp();
-    });
-    $("#file_private").click(function(){
-        $("#file_akses_pilih").slideUp();
-    });
-
-</script>
 
 
 @endsection

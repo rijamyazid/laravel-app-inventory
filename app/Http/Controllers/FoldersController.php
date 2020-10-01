@@ -69,7 +69,7 @@ class FoldersController extends Controller
         return redirect('/'.$bidangPrefix.'/folder/'.$url_path);
     }
 
-    public function view($bidangPrefix, $url_path = null){
+    public function view($bidangPrefix, $urlPath = null){
         Session::put('side_loc', $bidangPrefix);
 
         $sessions = Session::all();
@@ -84,8 +84,8 @@ class FoldersController extends Controller
         //         ->orderBy('file_name', 'asc')->get();
         //     // $files = File::with('folders')->where('parent_path', 'public')->where('folder_role', $role_prefix)->get();
         // } else {
-            if(is_null($url_path)) $url_path_new = 'public/'.$bidangPrefix;
-            else $url_path_new = 'public/'.$bidangPrefix.'/'.$url_path;
+            if(is_null($urlPath)) $url_path_new = 'public/'.$bidangPrefix;
+            else $url_path_new = 'public/'.$bidangPrefix.'/'.$urlPath;
 
             $folders = Folder::where('parent_path', '=', $url_path_new)
                 ->where(function($query) use ($sessions){
@@ -94,7 +94,7 @@ class FoldersController extends Controller
                 })
                 ->orderBy('folder_name', 'asc')->get();
 
-            $files = File::where('folder_id', '=', Helper::getFolderByUrl($url_path, $bidangPrefix)->id)
+            $files = File::where('folder_id', '=', Helper::getFolderByUrl($urlPath, $bidangPrefix)->id)
                     ->where(function($query) use ($sessions){
                     $query->where('file_flag', '=', 'public')
                         ->orWhere('file_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
@@ -103,14 +103,20 @@ class FoldersController extends Controller
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         // }
 
+        $data = array('url' => $urlPath);
+
         return view('content.folders.view', 
-            ['url_path'=> $url_path,
-            'locations' => self::locations($url_path), 
+            ['url_path'=> $urlPath,
             'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles,
             'folders' => $folders, 
             'files' => $files]);
+    }
+
+    public function modal($bidangPrefix, $id, Request $request){
+        $folder = Folder::find($id);
+        return view('content.folders.modal', compact('folder'))->renderSections()['sub-content'];
     }
 
     public function edit($bidangPrefix, $folderID){
@@ -119,25 +125,44 @@ class FoldersController extends Controller
         $sessions = Session::all();
         return view('content.folders.edit', 
             ['folder'=>$folder, 
+            'flags' => self::getFlags($folder->folder_flag),
             'role' => $bidangPrefix,
             'sessions' => $sessions,
             'roles' => $roles]);
     }
 
+    private function getFlags($flags){
+        return explode(',', $flags);
+    }
+
     public function update($bidangPrefix, $folderID, Request $request){
         $this->validate($request,[
-            'foldername' => 'required',
+            'folder_name' => 'required',
         ]);
 
         $folder = Folder::find($folderID);
 
+        if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
+        if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+
+        if($request->folder_flag == 'private'){
+            $folderFlag = 'super_admin,'.$bidangPrefix;
+        } else if($request->folder_flag == 'pilih'){
+            $folderFlag = 'super_admin,'.$bidangPrefix;
+            $ffbS = $request->folder_flag_bidang;
+            foreach ($ffbS as $ffb) {
+                $folderFlag .= ',' . $ffb;
+            }
+        }
+
         $oldFolderName = $folder->folder_name;
         $oldUrlPath = $folder->url_path;
-        $newFolderName = $request->foldername;
+        $newFolderName = $request->folder_name;
 
         Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
 
         $folder->folder_name = $newFolderName;
+        $folder->folder_flag = $folderFlag;
         $folder->save();
 
         $folders = Folder::where('url_path', 'like', $folder->url_path . '%')->get();
@@ -148,17 +173,55 @@ class FoldersController extends Controller
         }
 
         Alert::success('Folder Berhasil Di Edit!');
-        return redirect('/'. $bidangPrefix .'/folder'. self::deleteUrlPathLast($oldUrlPath));
+        return redirect('/'. $bidangPrefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
     }
 
-    public function delete($bidangPrefix, $folder_id){
-        $folder = Folder::find($folder_id);
+    public function delete($bidangPrefix, $folderId){
+        $folder = Folder::find($folderId);
 
         Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
         $tmpFolderLastPath = $folder->url_path;
         $folder->delete();
         Alert::warning('Folder Berhasil Dihapus!');
-        return redirect('/'.$bidangPrefix.'/folder'.self::deleteUrlPathLast($tmpFolderLastPath));
+        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+    }
+
+    public function move($bidangPrefix, $folderId){
+        Session::put('move', $folderId);
+
+        $urlPath = self::deleteUrlPathLast(Helper::getFolderById($folderId)->url_path);
+
+        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($urlPath));
+
+    }
+
+    public function moving($bidangPrefix, $urlPath = null){
+
+
+        $oldfolder = Folder::find(Session::get('move'));
+        $newFolder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
+
+        $oldUrlPathPos = strpos($oldfolder->url_path, $oldfolder->folder_name);
+        if($oldUrlPathPos) $oldUrlPath = substr($oldfolder->url_path, 0, $oldUrlPathPos-1);
+        else $oldUrlPath = substr($oldfolder->url_path, 0);
+
+        $oldParentPath = $oldfolder->parent_path;
+
+        $folders = Folder::where('url_path', 'like', $oldfolder->url_path . '%')->get();
+
+        $oldfolder->parent_path = $newFolder->parent_path . '/' . $newFolder->folder_name;
+        $oldfolder->save();
+
+        $oldfolder = Folder::find(Session::get('move'));
+        foreach($folders as $folder){
+            $folder->url_path = Helper::getUrlFromParentPath($bidangPrefix, $folder->folder_name, Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path));
+            $folder->parent_path = Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path);
+            $folder->save();
+        }
+
+        Session::forget('move');
+
+        return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
     }
 
     public function search($bidangPrefix, Request $request){
@@ -175,9 +238,8 @@ class FoldersController extends Controller
             ->orderBy('file_name', 'asc')->get();
 
         return view('content.folders.view', 
-            ['url_path'=> '', 
+            ['url_path'=> null,
             'role' => $bidangPrefix,
-            'locations' => [],
             'sessions' => $sessions,
             'roles' => $roles,
             'folders' => [],
@@ -249,20 +311,9 @@ class FoldersController extends Controller
             $split = explode('/', $url_path, -1);
             $merge = implode('/', $split);
 
-            return '/'.$merge;
+            return $merge;
         } else {
             return null;
         }
-    }
-
-    public function locations($location){
-        $split = explode('/', $location);
-        $darray = array();
-        $locLink = '';
-        foreach($split as $s){
-            $locLink = $locLink . $s . '/';
-            array_push($darray, array('loc' => $s, 'locLink' => $locLink));            
-        }
-        return $darray;
     }
 }

@@ -68,6 +68,56 @@
         });
     </script>
 
+    <script>
+        $("#btn-tambah-folder").click(function(){
+            if(!($("#form-tambah-file").is(":hidden"))){
+                $("#form-tambah-file").slideToggle(function(){
+                    $("#form-tambah-folder").slideToggle();
+                });
+            } else {
+                $("#form-tambah-folder").slideToggle();
+            }
+        });
+
+        $("#btn-tambah-file").click(function(){
+            if(!($("#form-tambah-folder").is(":hidden"))){
+                $("#form-tambah-folder").slideToggle(function(){
+                    $("#form-tambah-file").slideToggle();
+                });
+            } else {
+                $("#form-tambah-file").slideToggle();
+            }
+        });
+
+        $("#folder_pilih").click(function(){
+            $("#folder_akses_pilih").slideDown();
+        });
+        $("#folder_public").click(function(){
+            $("#folder_akses_pilih").slideUp();
+        });
+        $("#folder_private").click(function(){
+            $("#folder_akses_pilih").slideUp();
+        });
+
+        $("#file_pilih").click(function(){
+            $("#file_akses_pilih").slideDown();
+        });
+        $("#file_public").click(function(){
+            $("#file_akses_pilih").slideUp();
+        });
+        $("#file_private").click(function(){
+            $("#file_akses_pilih").slideUp();
+        });
+
+        $(document).on('ajaxComplete ready', function () {
+            $('.modalMd').off('click').on('click', function () {
+                $('#modalMdContent').load($(this).attr('value'));
+                $('#modalMdTitle').html($(this).attr('title'));
+            });
+        });
+
+    </script>
+
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}

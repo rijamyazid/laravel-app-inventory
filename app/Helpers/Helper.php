@@ -6,6 +6,17 @@
 
     class Helper {
         
+        static function folderLocation($urlPath){
+            $split = explode('/', $urlPath);
+            $arr = array();
+            $newUrlPath = '';
+            foreach($split as $path){
+                $newUrlPath = $newUrlPath . $path . '/';
+                array_push($arr, array('path' => $path, 'urlPath' => $newUrlPath));            
+            }
+            return $arr;
+        }
+
         static function getBidangByPrefix($prefix){
             return Bidang::where('bidang_prefix', '=', $prefix)->first();
         }
@@ -17,6 +28,16 @@
         static function getFolderByUrl($url, $bidangPrefix){
             if(is_null($url)) return Folder::where('parent_path', '=', 'public')->where('bidang_id', '=', \Helper::getBidangByPrefix($bidangPrefix)->id)->first();
             else return Folder::where('url_path', '=', $url)->first();
+        }
+
+        static function getUrlFromParentPath($bidangPrefix, $folderName, $parentPath){
+            if(count(explode('/', $parentPath)) > 2) $newStr = str_replace("public/$bidangPrefix/", '', $parentPath) . '/';
+            else $newStr = str_replace("public/$bidangPrefix", '', $parentPath);
+            return "$newStr$folderName";
+        }
+
+        static function getFolderById($id){
+            return Folder::find($id);
         }
 
     }

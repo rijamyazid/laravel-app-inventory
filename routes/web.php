@@ -40,6 +40,8 @@ Route::post('/{bidangPrefix}/creating/folder/{url_path?}', 'FoldersController@st
 Route::get('/{bidangPrefix}/folder/{url_path?}', 'FoldersController@view')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/edit/folder/{folderID}', 'FoldersController@edit');
 Route::post('/{bidangPrefix}/update/folder/{folderID}', 'FoldersController@update');
+Route::get('/{bidangPrefix}/move/folder/{folderID}', 'FoldersController@move');
+Route::get('/{bidangPrefix}/moving/folder/{url_path?}', 'FoldersController@moving')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/delete/folder/{folderID}', 'FoldersController@delete');
 
 //Files Route
