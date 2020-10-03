@@ -92,13 +92,15 @@ class FoldersController extends Controller
                     $query->where('folder_flag', '=', 'public')
                         ->orWhere('folder_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
                 })
+                ->where('folder_status','=','available')
                 ->orderBy('folder_name', 'asc')->get();
 
             $files = File::where('folder_id', '=', Helper::getFolderByUrl($urlPath, $bidangPrefix)->id)
                     ->where(function($query) use ($sessions){
                     $query->where('file_flag', '=', 'public')
                         ->orWhere('file_flag', 'like', '%'. $sessions['rolePrefix'] .'%');
-                })
+                    })
+                    ->where('file_status','=','available')
                 ->orderBy('file_name', 'asc')->get();
             // $files = File::with('folders')->where('url_path', $url_path)->get();
         // }
@@ -174,12 +176,19 @@ class FoldersController extends Controller
 
     public function delete($bidangPrefix, $folderId){
         $folder = Folder::find($folderId);
+        $folderS = Folder::where('url_path','like',"$folder->url_path/%")->get();
+        $folderUrlPath = $folder->url_path;
 
-        Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
-        $tmpFolderLastPath = $folder->url_path;
-        $folder->delete();
+        // Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
+        $folder->folder_status = 'trashed';
+        $folder->save();
+        foreach($folderS as $_folder){
+            $_folder->folder_status = 'trashed';
+            $_folder->save();
+        }
+
         Alert::warning('Folder Berhasil Dihapus!');
-        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($tmpFolderLastPath));
+        return redirect('/'.$bidangPrefix.'/folder/'.Helper::deleteUrlPathLast($folderUrlPath));
     }
 
     public function move($bidangPrefix, $folderId){

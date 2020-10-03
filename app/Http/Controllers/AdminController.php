@@ -17,14 +17,12 @@ class AdminController extends Controller
     public function index($bidangPrefix){
         Session::put('side_loc', 'dashboard');
 
-        $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
 
         return view('content.index', 
                 [ 'roleS' => Session::get('role'), 
                     'role' => $bidangPrefix,
-                    'sessions' => $sessions,
-                    'roles' => $roles,]);
+                    'bidangS' => $bidangS,]);
     }
 
     public function viewAdmin(){
@@ -32,24 +30,22 @@ class AdminController extends Controller
 
         $sessions = Session::all();
         $admin = Admin::get();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();      
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();      
 
         return view('content.admin.view', 
             ['admin' => $admin ,
              'role' => 'super_admin',
-             'sessions' => $sessions ,
-             'roles' => $roles]);
+             'bidangS' => $bidangS]);
     }
 
     public function createAdmin(){
         $admin = Admin::get();
         $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         return view('content.admin.create', 
             ['admin' => $admin,
              'role' => 'super_admin',
-             'sessions' => $sessions,
-             'roles' => $roles]);
+             'bidangS' => $bidangS]);
     }
 
     public function storeAdmin(Request $request){
@@ -78,13 +74,12 @@ class AdminController extends Controller
     public function editAdmin($bidangPrefix, $username){
         $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         
         return view('content.admin.edit', 
             ['admin' => $admin,
              'role' => 'super_admin',
-             'sessions' => $sessions,
-             'roles' => $roles] );
+             'bidangS' => $bidangS] );
     }
     
     public function updateAdmin($url_path , $username , Request $request){
@@ -107,7 +102,7 @@ class AdminController extends Controller
     public function deleteAdmin($bidangPrefix, $username){
         $admin = Admin::where('admin_username' , '=' , $username)->first();
         $sessions = Session::all();
-        $roles = Bidang::orderBy('bidang_name', 'asc')->get();
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
 
         $admin->delete();
 

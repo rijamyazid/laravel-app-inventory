@@ -207,10 +207,10 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Nama</th>
-                <th>Opsi</th>
-                <th>Dibuat Oleh</th>
-                <th>Waktu</th>
+                <th style="width: 30.0%">Nama</th>
+                <th style="width: 30.0%">Opsi</th>
+                <th style="width: 20.0%">Dibuat Oleh</th>
+                <th style="width: 20.0%">Waktu</th>
             </tr>
         </thead>
         <tbody>
@@ -226,8 +226,9 @@
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
-                            <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary" >Edit</a>  
-                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm">Hapus</a>
+                            <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary" style="width: 25.0%">Edit</a>  
+                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm" style="width: 25.0%">Hapus</a>
+                            <a href="{{ url( "$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary" style="width: 35.0%">Pindahkan</a>
                         @endif
                     </td>
                     <td>

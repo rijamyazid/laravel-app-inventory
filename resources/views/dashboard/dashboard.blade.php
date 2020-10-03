@@ -26,7 +26,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     @if (Session::get('side_loc') == 'dashboard')
-                        <a class="nav-link side-link-active" style="background: #39C172" href="{{url('/'. $sessions['rolePrefix']) . '/dashboard'}}">
+                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'.Session::get('rolePrefix').'/dashboard') }}">
                     @else
                         <a class="nav-link side-link" href="{{url('/'. Session::get('rolePrefix')) . '/dashboard'}}">
                     @endif

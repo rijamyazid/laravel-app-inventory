@@ -17,6 +17,17 @@
             return $arr;
         }
 
+        static function deleteUrlPathLast($url_path){
+            if(count((explode('/', $url_path))) > 1){
+                $split = explode('/', $url_path, -1);
+                $merge = implode('/', $split);
+    
+                return $merge;
+            } else {
+                return null;
+            }
+        }
+
         static function getBidangByPrefix($prefix){
             return Bidang::where('bidang_prefix', '=', $prefix)->first();
         }

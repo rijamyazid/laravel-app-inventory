@@ -2,10 +2,10 @@
 
 @section('sub-content')
 <div class="container-fluid">
-    <div class="row">
+    <div class="row mt-3">
         <div class="col">
+            <h3>Ubah Data Folder</h3>
             <form class="border p-3" action="/{{$bidangPrefix}}/update/folder/{{$folder->id}}" method="POST">
-                <h4>Ubah Data Folder</h4>
                 @csrf
                 <div class="row">
                     <div class="col">
@@ -70,14 +70,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-auto">
-                            <input type="submit" class="btn btn-success" value="Simpan Perubahan">
+                        <div class="col">
+                            <input type="submit" class="btn btn-success" style="width: 15.0%" value="Simpan Perubahan">
+                            <a href="{{ url( "$bidangPrefix/folder/".Helper::deleteUrlPathLast($folder->url_path) ) }}" class="btn btn-danger" style="width: 15.0%">Batalkan</a>
                         </div>
-                        <div class="col-auto">
-                    
-                            <a href="{{ url( "/$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary">Pindahkan</a>
-                        
-                    </div>
                     </div>
                 </div>
                 </div>
