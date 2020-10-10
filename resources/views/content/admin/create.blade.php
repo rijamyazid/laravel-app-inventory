@@ -3,7 +3,7 @@
 @section('sub-content')
 <div class="container mt-4">
     <h3>Tambah User</h3>
-    <form action="{{ url('/'. $sessions['rolePrefix']. '/store/admin') }}" method="POST">
+    <form action="{{ url('/'. Session::get('rolePrefix'). '/store/admin') }}" method="POST">
         @csrf
         <div class="form-group">
             <label for="usernameInput">Username</label>
@@ -20,8 +20,8 @@
         <div class="form-group">
             <label for="roleInput">Bagian</label>
             <select name="role">
-                @foreach($roles as $role)
-                    <option value="{{$role->id}}">{{$role->bidang_name}}</option>
+                @foreach($bidangS as $bidang)
+                    <option value="{{$bidang->id}}">{{$bidang->bidang_name}}</option>
                 @endforeach
             </select>
         </div>

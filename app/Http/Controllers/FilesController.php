@@ -70,8 +70,25 @@ class FilesController extends Controller
         return redirect($bidangPrefix . '/folder/' .$url_path);
     }
 
-    public function move($bidangPrefix, $url_path = null) {
+    public function move($bidangPrefix, $uuid) {
+        if(is_null(Session::get('username'))) return redirect('/');
+
+        Session::put('move_uuid', $uuid);
+        $urlPath = Helper::deleteUrlPathLast(Helper::getFileByUUID($uuid)->folder->url_path);
+        return redirect('/'.$bidangPrefix.'/folder/'.$urlPath);
+    }
+
+    public function moving($bidangPrefix, $urlPath = null){
+        if(is_null(Session::get('username'))) return redirect('/');
         
+        $file = Helper::getFileByUUID(Session::get('move_uuid'));
+        $folder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
+        Storage::move($file->folder->parent_path .'/'. $file->folder->folder_name.'/'. $file->file_uuid, $folder->parent_path .'/'. $folder->folder_name .'/'. $file->file_uuid);
+        $file->folder_id = $folder->id;
+        $file->save();
+
+        Session::forget('move_uuid');
+        return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
     }
 
     public function destroy($bidangPrefix, $uuid){

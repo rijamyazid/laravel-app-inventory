@@ -22,9 +22,17 @@
             </a>
         </div>
         {{-- TOMBOL TAMBAH FILE --}}
-        @if (!is_null(Session::get('move')))
+        @if (!is_null(Session::get('move_folderId')))
             <div class="col-md-auto col-sm mx-auto mb-2">
                 <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                    <span data-feather="file-plus"></span>
+                    Pindahkan Ke folder ini
+                </a>
+            </div>
+        @endif
+        @if (!is_null(Session::get('move_uuid')))
+            <div class="col-md-auto col-sm mx-auto mb-2">
+                <a href="{{ url("/$bidangPrefix/moving/file/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
                     <span data-feather="file-plus"></span>
                     Pindahkan Ke folder ini
                 </a>
@@ -252,13 +260,11 @@
                         </a>
                     </td>
                     <td>
-                        @if (Session::get('rolePrefix') == 'super_admin')
-                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
-                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
+                        @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
+                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success" style="width: 25.0%">Unduh</a>
+                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm" style="width: 25.0%">Hapus</a> 
+                            <a href="{{ url( "$bidangPrefix/move/file/$file->file_uuid" ) }}" class="btn btn-primary" style="width: 35.0%">Pindahkan</a>
                         @else
-                            @if (Session::get('rolePrefix') == $bidangPrefix)
-                                <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm">Hapus</a> 
-                            @endif
                             <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
                         @endif
                     </td>

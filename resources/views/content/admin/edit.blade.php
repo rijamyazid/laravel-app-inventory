@@ -3,7 +3,7 @@
 @section('sub-content')
 <div class="container mt-4">
     <h3>Edit User</h3>
-    <form action="{{ url('/'. $sessions['rolePrefix']. '/update/admin/'. $admin->admin_username) }}" method="POST">
+    <form action="{{ url('/'. Session::get('rolePrefix'). '/update/admin/'. $admin->admin_username) }}" method="POST">
         @csrf
         <div class="form-group">
             <label for="usernameInput">Username</label>
@@ -20,11 +20,11 @@
         <div class="form-group">
             <label for="roleInput">Bagian</label>
             <select name="role">
-                @foreach($roles as $role)
-                @if($admin->bidang_id == $role->id)
-                    <option value="{{$role->id}}" selected>{{$role->bidang_name}}</option>
+                @foreach($bidangS as $bidang)
+                @if($admin->bidang_id == $bidang->id)
+                    <option value="{{$bidang->id}}" selected>{{$bidang->bidang_name}}</option>
                 @else
-                    <option value="{{$role->id}}">{{$role->bidang_name}}</option>
+                    <option value="{{$bidang->id}}">{{$bidang->bidang_name}}</option>
                 @endif
                 @endforeach
             </select>

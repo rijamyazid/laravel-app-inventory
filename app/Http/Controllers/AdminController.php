@@ -21,8 +21,8 @@ class AdminController extends Controller
 
         return view('content.index', 
                 [ 'roleS' => Session::get('role'), 
-                    'role' => $bidangPrefix,
-                    'bidangS' => $bidangS,]);
+                    'bidangPrefix' => $bidangPrefix,
+                    'bidangS' => $bidangS]);
     }
 
     public function viewAdmin(){
@@ -34,7 +34,7 @@ class AdminController extends Controller
 
         return view('content.admin.view', 
             ['admin' => $admin ,
-             'role' => 'super_admin',
+             'bidangPrefix' => 'super_admin',
              'bidangS' => $bidangS]);
     }
 
@@ -44,7 +44,7 @@ class AdminController extends Controller
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         return view('content.admin.create', 
             ['admin' => $admin,
-             'role' => 'super_admin',
+             'bidangPrefix' => 'super_admin',
              'bidangS' => $bidangS]);
     }
 
@@ -78,7 +78,7 @@ class AdminController extends Controller
         
         return view('content.admin.edit', 
             ['admin' => $admin,
-             'role' => 'super_admin',
+             'bidangPrefix' => 'super_admin',
              'bidangS' => $bidangS] );
     }
     

@@ -49,4 +49,6 @@ Route::get('/{bidangPrefix}/create/files/{url_path?}', 'FilesController@create')
 Route::post('/{bidangPrefix}/store/files/{url_path?}', 'FilesController@store')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/destroy/file/{uuid}', 'FilesController@destroy')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/download/file/{uuid}', 'FilesController@download')->where('url_path', '.*');
+Route::get('/{bidangPrefix}/move/file/{uuid}', 'FilesController@move');
+Route::get('/{bidangPrefix}/moving/file/{url_path?}', 'FilesController@moving')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/search', 'FoldersController@search');

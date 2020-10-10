@@ -192,18 +192,18 @@ class FoldersController extends Controller
     }
 
     public function move($bidangPrefix, $folderId){
-        Session::put('move', $folderId);
+        Session::put('move_folderId', $folderId);
 
         $urlPath = self::deleteUrlPathLast(Helper::getFolderById($folderId)->url_path);
 
-        return redirect('/'.$bidangPrefix.'/folder/'.self::deleteUrlPathLast($urlPath));
+        return redirect('/'.$bidangPrefix.'/folder/'.$urlPath);
 
     }
 
     public function moving($bidangPrefix, $urlPath = null){
 
 
-        $oldfolder = Folder::find(Session::get('move'));
+        $oldfolder = Folder::find(Session::get('move_folderId'));
         $newFolder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
 
         $oldUrlPathPos = strpos($oldfolder->url_path, $oldfolder->folder_name);
@@ -214,6 +214,7 @@ class FoldersController extends Controller
 
         $folders = Folder::where('url_path', 'like', $oldfolder->url_path . '%')->get();
 
+        Storage::move($oldfolder->parent_path .'/'. $oldfolder->folder_name, $newFolder->parent_path .'/'. $newFolder->folder_name .'/'. $oldfolder->folder_name);
         $oldfolder->parent_path = $newFolder->parent_path . '/' . $newFolder->folder_name;
         $oldfolder->save();
 
@@ -224,7 +225,7 @@ class FoldersController extends Controller
             $folder->save();
         }
 
-        Session::forget('move');
+        Session::forget('move_folderId');
 
         return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
     }

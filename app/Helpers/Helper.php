@@ -3,6 +3,7 @@
     use App\Admin;
     use App\Bidang;
     use App\Folder;
+    use App\File;
 
     class Helper {
         
@@ -21,7 +22,6 @@
             if(count((explode('/', $url_path))) > 1){
                 $split = explode('/', $url_path, -1);
                 $merge = implode('/', $split);
-    
                 return $merge;
             } else {
                 return null;
@@ -49,6 +49,10 @@
 
         static function getFolderById($id){
             return Folder::find($id);
+        }
+
+        static function getFileByUUID($uuid){
+            return File::where('file_uuid', '=', $uuid)->first();
         }
 
     }

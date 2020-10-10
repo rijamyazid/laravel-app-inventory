@@ -56,7 +56,7 @@
                         </a>
                     </li>
                     <li class="nav-item justify-content-center px-3" id="form-tambah-bidang" style="display: none">
-                        <form action="{{ url($role . '/create/bidang-baru') }}" method="POST">
+                        <form action="{{ url( $bidangPrefix.'/create/bidang-baru') }}" method="POST">
                             @csrf
                             <div class="form-group">
                                 <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
@@ -68,9 +68,9 @@
                     </li>
                     <li class="nav-item">
                     @if (Session::get('side_loc') == 'kelola_user')
-                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $sessions['rolePrefix']. '/view/admin') }}">
+                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. Session::get('rolePrefix'). '/view/admin') }}">
                     @else
-                        <a class="nav-link side-link" href="{{ url('/'. $sessions['rolePrefix']. '/view/admin') }}">
+                        <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/view/admin') }}">
                     @endif
                             <span class="mr-2" data-feather="users"></span>
                             Kelola User
