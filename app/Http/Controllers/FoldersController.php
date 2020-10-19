@@ -124,13 +124,9 @@ class FoldersController extends Controller
         $sessions = Session::all();
         return view('content.folders.edit', 
             ['folder'=>$folder, 
-            'flags' => self::getFlags($folder->folder_flag),
+            'flags' => Helper::getFlags($folder->folder_flag),
             'bidangPrefix' => $bidangPrefix,
             'bidangS' => $bidangS]);
-    }
-
-    private function getFlags($flags){
-        return explode(',', $flags);
     }
 
     public function update($bidangPrefix, $folderID, Request $request){
@@ -143,6 +139,7 @@ class FoldersController extends Controller
         if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
         if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
 
+        $folderFlag = 'public';
         if($request->folder_flag == 'private'){
             $folderFlag = 'super_admin,'.$bidangPrefix;
         } else if($request->folder_flag == 'pilih'){

@@ -23,12 +23,12 @@ class FilesController extends Controller
                 ->where('bidang_id', '=', \Helper::getBidangByPrefix($bidangPrefix)->id)->get();
                 
         return view('content.files.create', 
-            ['url_path'=> $url_path, 
-            'role' => $bidangPrefix,
-            'sessions' => $sessions,
-            'roles' => $roles,
-            'folders' => $folders, 
-            'files' => $files]);
+            ['url_path' => $url_path, 
+            'role'      => $bidangPrefix,
+            'sessions'  => $sessions,
+            'roles'     => $roles,
+            'folders'   => $folders, 
+            'files'     => $files]);
     }
 
     public function store($bidangPrefix, $url_path = null, Request $request){
@@ -70,6 +70,49 @@ class FilesController extends Controller
         return redirect($bidangPrefix . '/folder/' .$url_path);
     }
 
+    public function edit($bidangPrefix, $uuid){
+        if(is_null(Session::get('username'))) return redirect('/');
+        
+        return view('content.files.edit', 
+            [
+             'file'         => Helper::getFileByUUID($uuid),
+             'flags'        => Helper::getFlags(Helper::getFileByUUID($uuid)->file_flag),
+             'bidangS'      => Bidang::orderBy('bidang_name', 'asc')->get(), 
+             'bidangPrefix' => $bidangPrefix
+            ]);
+    }
+
+    public function update($bidangPrefix, $uuid, Request $request){
+        if(is_null(Session::get('username'))) return redirect('/');
+
+        $file = Helper::getFileByUUID($uuid);
+        if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)) throw ValidationException::withMessages(['file_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+
+        $fileFlag = 'public';
+        if($request->file_flag == 'private'){
+            $fileFlag = 'super_admin,'.$bidangPrefix;
+        } else if($request->file_flag == 'pilih'){
+            $fileFlag = 'super_admin,'.$bidangPrefix;
+            $ffbS = $request->file_flag_bidang;
+            foreach ($ffbS as $ffb) {
+                $fileFlag .= ',' . $ffb;
+            }
+        }
+
+        if($request->hasFile('file_name')){
+            $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
+            Storage::delete($filePath);
+
+            $storePath = Storage::putFile($file->folder->parent_path . '/'. $file->folder->folder_name, $request->file('file_name'));
+            $file->file_name = $request->file_name->getClientOriginalName();
+            $file->file_uuid = self::getUUID($storePath);
+        }
+        $file->file_flag = $fileFlag;
+        $file->save();
+
+        return redirect('/'. $bidangPrefix .'/folder/'. $file->folder->url_path);
+    }
+
     public function move($bidangPrefix, $uuid) {
         if(is_null(Session::get('username'))) return redirect('/');
 
@@ -92,12 +135,15 @@ class FilesController extends Controller
     }
 
     public function destroy($bidangPrefix, $uuid){
-        $file = File::where('file_uuid', $uuid)->first();
+        if(is_null(Session::get('username'))) return redirect('/');
 
-        $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
-        Storage::delete($filePath);
+        $file = Helper::getFileByUUID($uuid);
+        $file->file_status = 'trashed';
+        $file->save();
+        // $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
+        // Storage::delete($filePath);
 
-        $file->delete();
+        // $file->delete();
 
         Alert::warning('File Berhasil Dihapus!');
         return redirect('/' . $bidangPrefix . '/folder/' . $file->folder->url_path);

@@ -7,6 +7,10 @@
 
     class Helper {
         
+        static function getFlags($flags){
+            return explode(',', $flags);
+        }
+
         static function folderLocation($urlPath){
             $split = explode('/', $urlPath);
             $arr = array();

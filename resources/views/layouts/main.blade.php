@@ -115,7 +115,6 @@
                 $('#modalMdTitle').html($(this).attr('title'));
             });
         });
-
     </script>
 
     @if (session('success'))

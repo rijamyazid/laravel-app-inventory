@@ -212,11 +212,11 @@
     {{-- ALERT UNTUK AKSI --}}
 
     {{-- TAMPILAN FILE FOLDER --}}
-    <table class="table">
+    <table class="table table-bordered table-sm">
         <thead>
             <tr>
-                <th style="width: 30.0%">Nama</th>
-                <th style="width: 30.0%">Opsi</th>
+                <th style="width: 25.0%">Nama</th>
+                <th style="width: 35.0%">Opsi</th>
                 <th style="width: 20.0%">Dibuat Oleh</th>
                 <th style="width: 20.0%">Waktu</th>
             </tr>
@@ -225,8 +225,8 @@
             {{-- TAMPILAN FOLDER --}}
             @foreach ($folders as $folder)
                 <tr>
-                    <td>
-                        <a class="nav-link" href="{{ url("$bidangPrefix/folder/$folder->url_path") }}">
+                    <td class="pl-3">
+                        <a href="{{ url("$bidangPrefix/folder/$folder->url_path") }}">
                             <span class="mr-3" data-feather="folder"></span>
                             {{ $folder->folder_name }}
                         </a>
@@ -234,9 +234,9 @@
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
-                            <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary" style="width: 25.0%">Edit</a>  
-                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger delete-confirm" style="width: 25.0%">Hapus</a>
-                            <a href="{{ url( "$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary" style="width: 35.0%">Pindahkan</a>
+                            <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary btn-sm" style="width: 20.0%">Edit</a>  
+                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 20.0%">Hapus</a>
+                            <a href="{{ url( "$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary btn-sm" style="width: 30.0%">Pindahkan</a>
                         @endif
                     </td>
                     <td>
@@ -251,7 +251,7 @@
             {{-- TAMPILAN FILE --}}
             @foreach ($files as $file)
                 <tr>
-                    <td><a href="{{ Storage::disk('local')->url($file->folder->parent_path . '/' .
+                    <td class="pl-3"><a href="{{ Storage::disk('local')->url($file->folder->parent_path . '/' .
                                 $file->folder->folder_name . '/' .
                                 $file->file_uuid) }}" target="_blank" >
                                 
@@ -261,9 +261,10 @@
                     </td>
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
-                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success" style="width: 25.0%">Unduh</a>
-                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger delete-confirm" style="width: 25.0%">Hapus</a> 
-                            <a href="{{ url( "$bidangPrefix/move/file/$file->file_uuid" ) }}" class="btn btn-primary" style="width: 35.0%">Pindahkan</a>
+                            <a href="{{ url("$bidangPrefix/edit/file/$file->file_uuid") }}" class="btn btn-primary btn-sm" style="width: 20.0%">Edit</a>  
+                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 20.0%">Hapus</a> 
+                            <a href="{{ url( "$bidangPrefix/move/file/$file->file_uuid" ) }}" class="btn btn-primary btn-sm" style="width: 30.0%">Pindahkan</a>
+                            <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success btn-sm" style="width: 20.0%">Unduh</a>
                         @else
                             <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success">Download</a>
                         @endif
