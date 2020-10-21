@@ -1,6 +1,6 @@
 <?php
     namespace App\Helpers;
-    use App\Admin;
+    use App\User;
     use App\Bidang;
     use App\Folder;
     use App\File;
@@ -16,7 +16,7 @@
             $arr = array();
             $newUrlPath = '';
             foreach($split as $path){
-                $newUrlPath = $newUrlPath . $path . '/';
+                $newUrlPath = $newUrlPath . $path .'/';
                 array_push($arr, array('path' => $path, 'urlPath' => $newUrlPath));            
             }
             return $arr;
@@ -36,8 +36,8 @@
             return Bidang::where('bidang_prefix', '=', $prefix)->first();
         }
         
-        static function getAdminByUsername($username){
-            return Admin::where('admin_username', '=', $username)->first();
+        static function getUserByUsername($username){
+            return User::where('user_username', '=', $username)->first();
         }
 
         static function getFolderByUrl($url, $bidangPrefix){

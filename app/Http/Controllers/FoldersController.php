@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Helper;
-use App\Admin;
+use App\User;
 use App\Bidang;
 use App\Folder;
 use App\File;
@@ -62,7 +62,7 @@ class FoldersController extends Controller
             'url_path' => $url_path_new,
             'parent_path' => self::getFolderPath($bidangPrefix, $url_path_new),
             'folder_flag' => $folderFlag,
-            'admin_id' => Helper::getAdminByUsername(Session::get('username'))->id,
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);
         Alert::success('Folder Berhasil Ditambah!');
@@ -94,7 +94,6 @@ class FoldersController extends Controller
                 })
                 ->where('folder_status','=','available')
                 ->orderBy('folder_name', 'asc')->get();
-
             $files = File::where('folder_id', '=', Helper::getFolderByUrl($urlPath, $bidangPrefix)->id)
                     ->where(function($query) use ($sessions){
                     $query->where('file_flag', '=', 'public')
@@ -154,10 +153,11 @@ class FoldersController extends Controller
         $oldUrlPath = $folder->url_path;
         $newFolderName = $request->folder_name;
 
-        Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
+        if($oldFolderName != $newFolderName) Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
 
         $folder->folder_name = $newFolderName;
         $folder->folder_flag = $folderFlag;
+        $folder->user_id = Helper::getUserByUsername(Session::get('username'))->id;
         $folder->save();
 
         $folders = Folder::where('url_path', 'like', $folder->url_path . '%')->get();
@@ -173,13 +173,25 @@ class FoldersController extends Controller
 
     public function delete($bidangPrefix, $folderId){
         $folder = Folder::find($folderId);
-        $folderS = Folder::where('url_path','like',"$folder->url_path/%")->get();
+        $folders = Folder::where('url_path','like',"$folder->url_path/%")->get();
         $folderUrlPath = $folder->url_path;
 
         // Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
         $folder->folder_status = 'trashed';
+
+        Folder::create([
+            'folder_name' => $folder->folder_name . '_trashed',
+            'url_path' => $folder->url_path,
+            'parent_path' => $folder->parent_path,
+            'folder_status' => 'trashed',
+            'folder_flag' => $folder->folder_flag,
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => $folder->bidang_id
+        ]);
+
         $folder->save();
-        foreach($folderS as $_folder){
+
+        foreach($folders as $_folder){
             $_folder->folder_status = 'trashed';
             $_folder->save();
         }
@@ -214,9 +226,13 @@ class FoldersController extends Controller
         Storage::move($oldfolder->parent_path .'/'. $oldfolder->folder_name, $newFolder->parent_path .'/'. $newFolder->folder_name .'/'. $oldfolder->folder_name);
         $oldfolder->parent_path = $newFolder->parent_path . '/' . $newFolder->folder_name;
         $oldfolder->save();
-
-        $oldfolder = Folder::find(Session::get('move'));
+        
+        $oldfolder = Folder::find(Session::get('move_folderId'));
+        
+        // dd($folders);
         foreach($folders as $folder){
+            // dd($folder->parent_path);
+            // dd(Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->url_path));
             $folder->url_path = Helper::getUrlFromParentPath($bidangPrefix, $folder->folder_name, Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path));
             $folder->parent_path = Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path);
             $folder->save();
@@ -257,7 +273,7 @@ class FoldersController extends Controller
         $roleName = $request->foldername;
         $rolePrefix = self::getRolePrefix($roleName);
 
-        $admin = Admin::where('admin_username', '=', Session::get('username'))->first();
+        $user = User::where('user_username', '=', Session::get('username'))->first();
         Storage::makeDirectory('public/' . $rolePrefix);
         Bidang::create([
             'bidang_name' => $roleName,
@@ -268,7 +284,7 @@ class FoldersController extends Controller
         Folder::create([
             'folder_name' => $rolePrefix,
             'parent_path' => 'public',
-            'admin_id' => $admin->id,
+            'user_id' => $user->id,
             'bidang_id' => $bidang->id
         ]);
         

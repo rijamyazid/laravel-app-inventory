@@ -109,12 +109,9 @@
             $("#file_akses_pilih").slideUp();
         });
 
-        $(document).on('ajaxComplete ready', function () {
-            $('.modalMd').off('click').on('click', function () {
-                $('#modalMdContent').load($(this).attr('value'));
-                $('#modalMdTitle').html($(this).attr('title'));
-            });
-        });
+        function binBidangChanges(val){
+            window.location.replace("/" + val + "/bin");
+        }
     </script>
 
     @if (session('success'))

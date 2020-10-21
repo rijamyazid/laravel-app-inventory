@@ -18,8 +18,8 @@ class CreateLogsTable extends Migration
             $table->string('log_type', 20);
             $table->string('folder_name', 30)->nullable();
             $table->string('file_name', 30)->nullable();
-            $table->bigInteger('admin_id')->unsigned()->nullable();
-            $table->foreign('admin_id')->references('id')->on('admin')->onDelete('set null');
+            $table->bigInteger('user_id')->unsigned()->nullable();
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
             $table->timestamps();
         });
     }

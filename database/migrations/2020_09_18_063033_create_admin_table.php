@@ -13,11 +13,11 @@ class CreateAdminTable extends Migration
      */
     public function up()
     {
-        Schema::create('admin', function (Blueprint $table) {
+        Schema::create('user', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('admin_username', 25)->unique();
-            $table->string('admin_password', 25);
-            $table->string('admin_name', 25);
+            $table->string('user_username', 25)->unique();
+            $table->string('user_password', 25);
+            $table->string('user_name', 25);
             $table->biginteger('bidang_id')->unsigned()->nullable();
             $table->foreign('bidang_id')->references('id')->on('bidang')->onDelete('cascade');
             $table->timestamps();
@@ -31,6 +31,6 @@ class CreateAdminTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('admin');
+        Schema::dropIfExists('user');
     }
 }

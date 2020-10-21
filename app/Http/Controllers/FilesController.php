@@ -61,7 +61,7 @@ class FilesController extends Controller
                 'file_uuid' => $uuid,
                 'file_name' => $filename,
                 'file_flag' => $fileFlag,
-                'admin_id' => Helper::getAdminByUsername(Session::get('username'))->id,
+                'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
                 'folder_id' => Helper::getFolderByUrl($url_path, $bidangPrefix)->id
             ]);
         }
@@ -75,10 +75,10 @@ class FilesController extends Controller
         
         return view('content.files.edit', 
             [
-             'file'         => Helper::getFileByUUID($uuid),
-             'flags'        => Helper::getFlags(Helper::getFileByUUID($uuid)->file_flag),
-             'bidangS'      => Bidang::orderBy('bidang_name', 'asc')->get(), 
-             'bidangPrefix' => $bidangPrefix
+                'file'         => Helper::getFileByUUID($uuid),
+                'flags'        => Helper::getFlags(Helper::getFileByUUID($uuid)->file_flag),
+                'bidangS'      => Bidang::orderBy('bidang_name', 'asc')->get(), 
+                'bidangPrefix' => $bidangPrefix
             ]);
     }
 
@@ -107,6 +107,7 @@ class FilesController extends Controller
             $file->file_name = $request->file_name->getClientOriginalName();
             $file->file_uuid = self::getUUID($storePath);
         }
+        $file->user_id = Session::get('username');
         $file->file_flag = $fileFlag;
         $file->save();
 

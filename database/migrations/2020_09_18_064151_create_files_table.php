@@ -19,8 +19,9 @@ class CreateFilesTable extends Migration
             $table->string('file_name', 30)->nullable();
             $table->string('file_status', 10)->default('available');
             $table->text('file_flag');
-            $table->bigInteger('admin_id')->unsigned()->nullable();
-            $table->foreign('admin_id')->references('id')->on('admin')->onDelete('set null');
+            $table->bigInteger('file_dl_count');
+            $table->bigInteger('user_id')->unsigned()->nullable();
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
             $table->bigInteger('folder_id')->unsigned()->nullable();
             $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
             $table->timestamps();

@@ -48,6 +48,17 @@
                         </li>
                     @endif
                 @endforeach
+                @if (Session::get('rolePrefix') != 'guest')
+                    <li class="nav-item">
+                        @if (Session::get('side_loc')  == 'kelola_sampah_sementara')
+                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. Session::get('rolePrefix') . '/bin/') }}">
+                        @else
+                            <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/bin/') }}">
+                        @endif
+                                Kelola Sampah Sementara
+                            </a>
+                    </li>
+                @endif
                 @if (Session::get('rolePrefix') == 'super_admin')
                     <li class="nav-item" >
                         <a class="nav-link side-link" href="#" id="btn-tambah-bidang">
@@ -68,9 +79,9 @@
                     </li>
                     <li class="nav-item">
                     @if (Session::get('side_loc') == 'kelola_user')
-                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. Session::get('rolePrefix'). '/view/admin') }}">
+                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. Session::get('rolePrefix'). '/view/user') }}">
                     @else
-                        <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/view/admin') }}">
+                        <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/view/user') }}">
                     @endif
                             <span class="mr-2" data-feather="users"></span>
                             Kelola User

@@ -20,18 +20,18 @@ Route::get('/', function () {
 //Login Route
 Route::post('/login', 'LoginController@auth');
 Route::get('/guest_login', 'LoginController@guest');
-Route::get('/{bidangPrefix}/dashboard', 'AdminController@index');
+Route::get('/{bidangPrefix}/dashboard', 'UsersController@index');
 
 //Logout Route
-Route::get('/logout', 'AdminController@logout');
+Route::get('/logout', 'UsersController@logout');
 
-//Super Admin Route
-Route::get('/{bidangPrefix}/view/admin', 'AdminController@viewAdmin');
-Route::get('/{bidangPrefix}/create/admin', 'AdminController@createAdmin');
-Route::post('/{bidangPrefix}/store/admin', 'AdminController@storeAdmin');
-Route::get('/{bidangPrefix}/edit/admin/{username}', 'AdminController@editAdmin');
-Route::post('/{bidangPrefix}/update/admin/{username}', 'AdminController@updateAdmin');
-Route::get('/{bidangPrefix}/delete/admin/{username}', 'AdminController@deleteAdmin');
+//Admin Route
+Route::get('/{bidangPrefix}/view/user', 'UsersController@view');
+Route::get('/{bidangPrefix}/create/user', 'UsersController@create');
+Route::post('/{bidangPrefix}/store/user', 'UsersController@store');
+Route::get('/{bidangPrefix}/edit/user/{username}', 'UsersController@edit');
+Route::post('/{bidangPrefix}/update/user/{username}', 'UsersController@update');
+Route::get('/{bidangPrefix}/delete/user/{username}', 'UsersController@delete');
 
 //Folders Route
 Route::get('/{bidangPrefix}/create/folder/{url_path?}', 'FoldersController@create')->where('url_path', '.*');
@@ -54,3 +54,10 @@ Route::get('/{bidangPrefix}/download/file/{uuid}', 'FilesController@download')->
 Route::get('/{bidangPrefix}/move/file/{uuid}', 'FilesController@move');
 Route::get('/{bidangPrefix}/moving/file/{url_path?}', 'FilesController@moving')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/search', 'FoldersController@search');
+
+//Bin Route
+Route::get('/{bidangPrefix}/bin', 'BinsController@view');
+Route::get('/{bidangPrefix}/restore/bin/folder/{folderId}', 'BinsController@restoreFolder');
+Route::get('/{bidangPrefix}/delete/bin/folder/{folderId}', 'BinsController@deleteFolder');
+Route::get('/{bidangPrefix}/restore/bin/file/{fileId}', 'BinsController@restoreFile');
+Route::get('/{bidangPrefix}/delete/bin/file/{fileId}', 'BinsController@deleteFile');

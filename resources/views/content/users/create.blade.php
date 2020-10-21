@@ -3,7 +3,7 @@
 @section('sub-content')
 <div class="container mt-4">
     <h3>Tambah User</h3>
-    <form action="{{ url('/'. Session::get('rolePrefix'). '/store/admin') }}" method="POST">
+    <form action="{{ url('/'. Session::get('rolePrefix'). '/store/user') }}" method="POST">
         @csrf
         <div class="form-group">
             <label for="usernameInput">Username</label>

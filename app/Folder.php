@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Folder extends Model
 {
     protected $table = 'folders';
-    protected $fillable = ['folder_name', 'url_path', 'parent_path', 'folder_status', 'folder_flag', 'admin_id', 'bidang_id'];
+    protected $fillable = ['folder_name', 'url_path', 'parent_path', 'folder_status', 'folder_flag', 'user_id', 'bidang_id'];
 
-    public function admin(){
-        return $this->belongsTo('App\Admin', 'admin_id', 'id');
+    public function user(){
+        return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
     public function files(){

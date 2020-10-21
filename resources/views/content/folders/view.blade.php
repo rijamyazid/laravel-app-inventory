@@ -240,7 +240,7 @@
                         @endif
                     </td>
                     <td>
-                        {{ $folder->admin->admin_name }}
+                        {{ $folder->user->user_name }}
                     </td>
                     <td>
                         {{ $folder->created_at }}
@@ -270,7 +270,7 @@
                         @endif
                     </td>
                     <td>
-                        {{ $file->admin->admin_name }}
+                        {{ $file->user->user_name }}
                     </td>
                     <td>
                         {{ $file->created_at }}
