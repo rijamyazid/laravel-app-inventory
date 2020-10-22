@@ -129,9 +129,9 @@ class FoldersController extends Controller
     }
 
     public function update($bidangPrefix, $folderID, Request $request){
-        $this->validate($request,[
-            'folder_name' => 'required',
-        ]);
+        // $this->validate($request,[
+        //     'folder_name' => 'required',
+        // ]);
 
         $folder = Folder::find($folderID);
 
@@ -179,20 +179,34 @@ class FoldersController extends Controller
         // Storage::deleteDirectory($folder->parent_path.'/'.$folder->folder_name);
         $folder->folder_status = 'trashed';
 
-        Folder::create([
-            'folder_name' => $folder->folder_name . '_trashed',
-            'url_path' => $folder->url_path,
-            'parent_path' => $folder->parent_path,
-            'folder_status' => 'trashed',
-            'folder_flag' => $folder->folder_flag,
-            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
-            'bidang_id' => $folder->bidang_id
-        ]);
+        $folderTrashed = Folder::where('folder_name', '=', $folder->folder_name.'_trashed')->first();
+        if(is_null($folderTrashed)){
+            Folder::create([
+                'folder_name' => $folder->folder_name . '_trashed',
+                'url_path' => $folder->url_path,
+                'parent_path' => $folder->parent_path,
+                'folder_status' => 'trashed',
+                'folder_flag' => $folder->folder_flag,
+                'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+                'bidang_id' => $folder->bidang_id
+            ]);
+        }
 
         $folder->save();
 
+        $files = File::where('folder_id', '=', $folderId)->get();
+        foreach ($files as $_file) {
+            $_file->file_status = 'trashed';
+            $_file->save();
+        }
+
         foreach($folders as $_folder){
             $_folder->folder_status = 'trashed';
+            $_files = File::where('folder_id', '=', $_folder->id)->get();
+            foreach ($_files as $__file) {
+                $__file->file_status = 'trashed';
+                $__file->save();
+            }
             $_folder->save();
         }
 
@@ -211,30 +225,42 @@ class FoldersController extends Controller
 
     public function moving($bidangPrefix, $urlPath = null){
 
-
+        /** Folder yang akan dipindahkan (F1) */
         $oldfolder = Folder::find(Session::get('move_folderId'));
+        /** Folder lokasi tujuan (F2) */
         $newFolder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
 
-        $oldUrlPathPos = strpos($oldfolder->url_path, $oldfolder->folder_name);
-        if($oldUrlPathPos) $oldUrlPath = substr($oldfolder->url_path, 0, $oldUrlPathPos-1);
-        else $oldUrlPath = substr($oldfolder->url_path, 0);
-
+        /** Simpan parent path dari folder (F1) */
         $oldParentPath = $oldfolder->parent_path;
 
-        $folders = Folder::where('url_path', 'like', $oldfolder->url_path . '%')->get();
+        /** Ambil semua data folder dan sub-folder didalam folder (F1) -> (F11) */
+        $folders = Folder::where('url_path', 'like', $oldfolder->url_path . '/%')->get();
 
+        /** Pindahkan folder lokal (F1) ke folder tujuan (F2) */
         Storage::move($oldfolder->parent_path .'/'. $oldfolder->folder_name, $newFolder->parent_path .'/'. $newFolder->folder_name .'/'. $oldfolder->folder_name);
+        /** Rubah parent_path folder (F1) dengan parent_path dari folder tujuan (F2) */
+        $oldfolder->url_path = Helper::getUrlFromParentPath($bidangPrefix, $oldfolder->folder_name, $newFolder->parent_path . '/' . $newFolder->folder_name);
         $oldfolder->parent_path = $newFolder->parent_path . '/' . $newFolder->folder_name;
         $oldfolder->save();
         
+        /** Ambil folder (F1) yang sudah diperbaharui parent_path nya */
         $oldfolder = Folder::find(Session::get('move_folderId'));
         
-        // dd($folders);
+        /** (F11) */
         foreach($folders as $folder){
-            // dd($folder->parent_path);
-            // dd(Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->url_path));
-            $folder->url_path = Helper::getUrlFromParentPath($bidangPrefix, $folder->folder_name, Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path));
-            $folder->parent_path = Str::of($folder->parent_path)->replaceFirst($oldParentPath, $oldfolder->parent_path);
+            /** 
+             * Mengubah parent path pada folder dan sub-folder dengan parent path baru
+             * Caranya dengan menimpa parent path (F1) yang lama dengan parent path (F1) yang baru
+             */
+            $pos = strpos($folder->parent_path, $oldParentPath);
+            if ($pos !== false) {
+                $parentPathNew = substr_replace($folder->parent_path, $oldfolder->parent_path, $pos, strlen($oldParentPath));
+            }
+
+            /** Konversi parent_path kedalam bentuk url, kemudian update url baru pada folder */
+            $folder->url_path = Helper::getUrlFromParentPath($bidangPrefix, $folder->folder_name, $parentPathNew);
+            /** Ganti parent_path pada folder dengan yang sudah diperbaharui */
+            $folder->parent_path = $parentPathNew;
             $folder->save();
         }
 
@@ -262,39 +288,6 @@ class FoldersController extends Controller
             'bidangS' => $bidangS,
             'folders' => [],
             'files' => $files]);
-    }
-
-    public function createNewBidang($role, Request $request)
-    {
-        $this->validate($request,[
-            'foldername' => 'required',
-        ]);
-
-        $roleName = $request->foldername;
-        $rolePrefix = self::getRolePrefix($roleName);
-
-        $user = User::where('user_username', '=', Session::get('username'))->first();
-        Storage::makeDirectory('public/' . $rolePrefix);
-        Bidang::create([
-            'bidang_name' => $roleName,
-            'bidang_prefix' => $rolePrefix
-        ]);
-
-        $bidang = Bidang::where('bidang_prefix', '=', $rolePrefix)->first();
-        Folder::create([
-            'folder_name' => $rolePrefix,
-            'parent_path' => 'public',
-            'user_id' => $user->id,
-            'bidang_id' => $bidang->id
-        ]);
-        
-
-        return redirect('/' . $rolePrefix . '/folder');
-    }
-
-    private function getRolePrefix($roleName){
-        $split = explode(' ', strtolower($roleName));
-        return implode('_', $split);
     }
 
     public function getFolderPath($bidangPrefix, $url_path){

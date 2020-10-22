@@ -108,6 +108,10 @@
         $("#file_private").click(function(){
             $("#file_akses_pilih").slideUp();
         });
+        
+        $("#btn-tambah-bidang").click(function(){
+            $("#form-tambah-bidang").slideToggle();
+        });
 
         function binBidangChanges(val){
             window.location.replace("/" + val + "/bin");

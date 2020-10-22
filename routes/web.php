@@ -35,7 +35,6 @@ Route::get('/{bidangPrefix}/delete/user/{username}', 'UsersController@delete');
 
 //Folders Route
 Route::get('/{bidangPrefix}/create/folder/{url_path?}', 'FoldersController@create')->where('url_path', '.*');
-Route::post('/{bidangPrefix}/create/bidang-baru', 'FoldersController@createNewBidang');
 Route::post('/{bidangPrefix}/creating/folder/{url_path?}', 'FoldersController@store')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/folder/{url_path?}', 'FoldersController@view')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/edit/folder/{folderID}', 'FoldersController@edit');
@@ -59,5 +58,12 @@ Route::get('/{bidangPrefix}/search', 'FoldersController@search');
 Route::get('/{bidangPrefix}/bin', 'BinsController@view');
 Route::get('/{bidangPrefix}/restore/bin/folder/{folderId}', 'BinsController@restoreFolder');
 Route::get('/{bidangPrefix}/delete/bin/folder/{folderId}', 'BinsController@deleteFolder');
-Route::get('/{bidangPrefix}/restore/bin/file/{fileId}', 'BinsController@restoreFile');
-Route::get('/{bidangPrefix}/delete/bin/file/{fileId}', 'BinsController@deleteFile');
+Route::get('/{bidangPrefix}/restore/bin/file/{fileUUID}', 'BinsController@restoreFile');
+Route::get('/{bidangPrefix}/delete/bin/file/{fileUUID}', 'BinsController@deleteFile');
+
+//Bidang Route
+Route::get('/super_admin/view/bidang', 'BidangController@view');
+Route::post('/super_admin/create/bidang', 'BidangController@create');
+Route::get('/super_admin/edit/bidang/{bidangId}', 'BidangController@edit');
+Route::post('/super_admin/update/bidang/{bidangId}', 'BidangController@update');
+Route::get('/super_admin/delete/bidang/{bidangId}', 'BidangController@delete');

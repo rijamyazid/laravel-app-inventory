@@ -13,6 +13,10 @@ class Folder extends Model
         return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
+    public function bidang(){
+        return $this->belongsTo('App\Bidang', 'bidang_id', 'id');
+    }
+
     public function files(){
         return $this->hasMany('App\File');
     }

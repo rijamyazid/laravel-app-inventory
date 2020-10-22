@@ -65,9 +65,9 @@
         <thead>
             <tr>
                 <th style="width: 25.0%">Nama</th>
-                <th style="width: 35.0%">Opsi</th>
-                <th style="width: 20.0%">Dihapus Oleh</th>
-                <th style="width: 20.0%">Waktu</th>
+                <th style="width: 20.0%">Opsi</th>
+                <th style="width: 30.0%">Lokasi Asal</th>
+                <th style="width: 25.0%">Waktu</th>
             </tr>
         </thead>
         <tbody>
@@ -77,21 +77,21 @@
                     <td class="pl-3">
                         <a href="{{ url("$bidangPrefix/folder/$folder->url_path") }}">
                             <span class="mr-3" data-feather="folder"></span>
-                            {{ $folder->folder_name }}
+                            {{ Helper::removeFolderTrasedName($folder->folder_name) }}
                         </a>
                     </td>
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
-                            <a href="{{ url("$bidangPrefix/restore/bin/folder/$folder->id") }}" class="btn btn-success btn-sm" style="width: 40.0%">Pulihkan</a>  
-                            <a href="{{ url("$bidangPrefix/delete/bin/folder/$folder->id") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 40.0%">Hapus Permanen</a>
+                            <a href="{{ url("$bidangPrefix/restore/bin/folder/$folder->id") }}" class="btn btn-success btn-sm" >Pulihkan</a>  
+                            <a href="{{ url("$bidangPrefix/delete/bin/folder/$folder->id") }}" class="btn btn-danger btn-sm delete-confirm" >Hapus Permanen</a>
                         @endif
                     </td>
                     <td>
-                        {{ $folder->user->user_name }}
+                        {{ $folder->bidang->bidang_name.'/'.Helper::deleteUrlPathLast($folder->url_path) }}
                     </td>
                     <td>
-                        {{ $folder->created_at }}
+                        {{ $folder->updated_at }}
                     </td>
                 </tr>
             @endforeach
@@ -109,15 +109,15 @@
                     </td>
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
-                            <a href="{{ url("$bidangPrefix/restore/bin/file/$file->id") }}" class="btn btn-success btn-sm" style="width: 40.0%">Pulihkan</a>  
-                            <a href="{{ url("$bidangPrefix/delete/bin/file/$file->id") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 40.0%">Hapus Permanen</a>
+                            <a href="{{ url("$bidangPrefix/restore/bin/file/$file->file_uuid") }}" class="btn btn-success btn-sm" >Pulihkan</a>  
+                            <a href="{{ url("$bidangPrefix/delete/bin/file/$file->file_uuid") }}" class="btn btn-danger btn-sm delete-confirm" >Hapus Permanen</a>
                         @endif
                     </td>
                     <td>
-                        {{ $file->admin->admin_name }}
+                        {{ $folder->bidang->bidang_name.'/'.$file->folder->url_path }}
                     </td>
                     <td>
-                        {{ $file->created_at }}
+                        {{ $file->updated_at }}
                     </td>
                 </tr>
             @endforeach

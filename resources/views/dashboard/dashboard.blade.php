@@ -61,21 +61,10 @@
                 @endif
                 @if (Session::get('rolePrefix') == 'super_admin')
                     <li class="nav-item" >
-                        <a class="nav-link side-link" href="#" id="btn-tambah-bidang">
-                            <span class="mr-2" data-feather="folder-plus"></span>
-                            Tambah Bidang
+                        <a class="nav-link side-link" href="{{ url("/super_admin/view/bidang") }}">
+                            <span class="mr-2" data-feather="folder-plus"></span>  
+                            Kelola Bidang
                         </a>
-                    </li>
-                    <li class="nav-item justify-content-center px-3" id="form-tambah-bidang" style="display: none">
-                        <form action="{{ url( $bidangPrefix.'/create/bidang-baru') }}" method="POST">
-                            @csrf
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Nama Bidang" name="foldername">
-                            </div>
-                            <div class="form-group">    
-                                <input type="submit" class="btn btn-success w-100" value="Tambah">  
-                            </div>
-                        </form>
                     </li>
                     <li class="nav-item">
                     @if (Session::get('side_loc') == 'kelola_user')
@@ -88,11 +77,6 @@
                         </a>
                     </li>
                 @endif
-                <script>
-                    $("#btn-tambah-bidang").click(function(){
-                        $("#form-tambah-bidang").slideToggle();
-                    });
-                </script>
                 </ul>
         </div>
         <div class="col-md">

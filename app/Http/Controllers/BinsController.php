@@ -27,10 +27,11 @@ class BinsController extends Controller
                     ->where('folder_status','=','trashed')
                     ->orderBy('folder_name', 'asc')->get();
         
-        $files = File::where('folder_id', '=', Helper::getFolderByUrl($urlPath, $bidangPrefix)->id)
+        $files = File::join('folders', 'folders.id', '=', 'files.folder_id')
             ->where('file_status','=','trashed')
+            ->where('folders.bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
             ->orderBy('file_name', 'asc')->get();
-        
+
         return view('content.bins.view', 
             [
                 'urlPath'       => $urlPath,
@@ -45,11 +46,25 @@ class BinsController extends Controller
         if(is_null(Session::get('username'))) return redirect('/');
 
         $folder = Folder::find($folderId);
-        $folderActual = Folder::where('url_path', '=', $folder->url_path)->first();
+        $folderActual = Folder::where('url_path', '=', $folder->url_path)
+                        ->where('bidang_id', '=', $folder->bidang_id)
+                        ->first();
         $folderActual->folder_status = 'available';
-        $folders = Folder::where('url_path', 'like', $folderActual->url_path.'/%')->get();
+        $folders = Folder::where('url_path', 'like', $folderActual->url_path.'/%')
+                    ->where('bidang_id', '=', $folderActual->bidang_id)
+                    ->get();
+        $files = File::where('folder_id', '=', $folderActual->id)->get();
+        foreach ($files as $_file) {
+            $_file->file_status = 'available';
+            $_file->save();
+        }
         foreach($folders as $_folder){
             $_folder->folder_status = 'available';
+            $_files = File::where('folder_id', '=', $_folder->id)->get();
+            foreach ($_files as $__file) {
+                $__file->file_status = 'available';
+                $__file->save();
+            }
             $_folder->save();
         }
         foreach(Helper::folderLocation($folder->url_path) as $paths){
@@ -93,7 +108,32 @@ class BinsController extends Controller
         return redirect('/' . $bidangPrefix . '/bin');
     }
 
-    public function restoreFile($bidangPrefix, $fileId){
+    public function restoreFile($bidangPrefix, $uuid){
         if(is_null(Session::get('username'))) return redirect('/');
+
+        $file = Helper::getFileByUUID($uuid);
+        foreach(Helper::folderLocation($file->folder->url_path) as $paths){
+            $_foldersTrashed = Folder::where('url_path', '=', substr($paths['urlPath'], 0, -1))
+                                ->where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
+                                ->get();
+            $_foldersTrashed[0]->folder_status = 'available';
+            $_foldersTrashed[0]->save();
+        }
+
+        $file->file_status = 'available';
+        $file->save();
+
+        return redirect('/' . $bidangPrefix . '/bin');
+    }
+
+    public function deleteFile($bidangPrefix, $uuid){
+        if(is_null(Session::get('username'))) return redirect('/');
+        $file = Helper::getFileByUUID($uuid);
+
+        Storage::delete($file->folder->parent_path.'/'.$file->folder->folder_name.'/'.$file->file_uuid);
+
+        $file->delete();
+
+        return redirect('/' . $bidangPrefix . '/bin');
     }
 }

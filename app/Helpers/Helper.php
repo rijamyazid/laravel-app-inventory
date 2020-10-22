@@ -45,10 +45,28 @@
             else return Folder::where('url_path', '=', $url)->first();
         }
 
+        /**
+         * Mendapatkan URL dari parent path folder, dengan cara menghapus bagian tertentu didalam parent path
+         */
         static function getUrlFromParentPath($bidangPrefix, $folderName, $parentPath){
-            if(count(explode('/', $parentPath)) > 2) $newStr = str_replace("public/$bidangPrefix/", '', $parentPath) . '/';
-            else $newStr = str_replace("public/$bidangPrefix", '', $parentPath);
+            if(count(explode('/', $parentPath)) > 2) {
+                $pos = strpos($parentPath, "public/$bidangPrefix/");
+                if ($pos !== false) {
+                    $newStr = substr_replace($parentPath, '', $pos, strlen("public/$bidangPrefix/")) . '/';
+                }
+                // $newStr = str_replace("public/$bidangPrefix/", '', $parentPath) . '/';
+            }else {
+                $pos = strpos($parentPath, "public/$bidangPrefix");
+                if ($pos !== false) {
+                    $newStr = substr_replace($parentPath, '', $pos, strlen("public/$bidangPrefix"));
+                }
+                // $newStr = str_replace("public/$bidangPrefix", '', $parentPath);
+            }
             return "$newStr$folderName";
+        }
+
+        static function removeFolderTrasedName($foldername){
+            return explode('_', $foldername)[0];
         }
 
         static function getFolderById($id){
@@ -59,5 +77,10 @@
             return File::where('file_uuid', '=', $uuid)->first();
         }
 
+        /** Helper untuk Bidang */
+        static function getBidangPrefix($bidangName){
+            $split = explode(' ', strtolower($bidangName));
+            return implode('_', $split);
+        }
     }
 ?>
