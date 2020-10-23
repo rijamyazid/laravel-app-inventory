@@ -7,6 +7,17 @@
             <h3>Ubah Data Folder</h3>
             <form class="border p-3" action="/{{$bidangPrefix}}/update/folder/{{$folder->id}}" method="POST">
                 @csrf
+                {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
+                <div class="row">
+                    <div class="col">
+                        @foreach (['danger', 'warning', 'success', 'info'] as $jenis)
+                        @if(Session::has('alert-' . $jenis))
+                            <p class="alert alert-{{ $jenis }}">{{ Session::get('alert-' . $jenis) }} <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+                {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
                 <div class="row">
                     <div class="col">
                         <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder" value="{{$folder->folder_name}}">
@@ -38,7 +49,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" id="folder_akses_pilih" @if (count($flags) < 2)
+                <div class="row" id="folder_akses_pilih" @if (count($flags) < 3)
                     style="display: none"
                 @endif >
                     <div class="col">

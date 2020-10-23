@@ -18,6 +18,12 @@ class FoldersController extends Controller
 {
 
     public function create($bidangPrefix, $url_path=''){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         // return view('admin.create_table', ['url_path'=> $url_path,'role' => $role_prefix]);
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -34,13 +40,33 @@ class FoldersController extends Controller
             ]);
     }
 
-    public function store($bidangPrefix, $url_path='', Request $request){
+    public function store($bidangPrefix, $url_path = null, Request $request){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
+        if(is_null($request->folder_name) || empty($request->folder_name)){
+            Session::flash('alert-danger', 'Nama folder tidak boleh kosong!');
+            return redirect("/$bidangPrefix/folder/$url_path");
+        } else if(count(
+                    Folder::where('folder_name', '=', $request->folder_name)
+                        ->where('parent_path', '=', self::getFolderPath($bidangPrefix, $url_path))
+                        ->where('folder_status', '=', 'available')
+                        ->get()
+                ) > 0){
+            Session::flash('alert-danger', 'Di folder ini sudah ada folder dengan nama yang sama!');
+            return redirect("/$bidangPrefix/folder/$url_path");
+        } else if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)){
+            Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
+            return redirect("/$bidangPrefix/folder/$url_path");
+        }
+        // if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
+        // if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
 
         $base_path = 'public/' . $bidangPrefix;
         $folderFlag = 'public';
-
-        if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
-        if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
 
         $newFolderName = $request->folder_name;
         if($request->folder_flag == 'private'){
@@ -52,9 +78,12 @@ class FoldersController extends Controller
                 $folderFlag .= ',' . $ffb;
             }
         }
- 
-        if(empty($url_path)) $url_path_new = $request->folder_name;
-        else $url_path_new = $url_path . '/'. $request->folder_name;
+
+        if(is_null($url_path)) { 
+            $url_path_new = $request->folder_name;
+        } else {
+            $url_path_new = $url_path . '/'. $request->folder_name;
+        }
 
         Storage::makeDirectory($base_path. '/' .$url_path_new);
         Folder::create([
@@ -65,12 +94,18 @@ class FoldersController extends Controller
             'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);
-        Alert::success('Folder Berhasil Ditambah!');
+        
+        Session::flash('alert-success', 'Folder berhasil ditambahkan!');
         return redirect('/'.$bidangPrefix.'/folder/'.$url_path);
     }
 
     public function view($bidangPrefix, $urlPath = null){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        }
+
         Session::put('side_loc', $bidangPrefix);
+        Session::put('move_folderNameGoal', Helper::getFolderByUrl($urlPath, $bidangPrefix)->folder_name);
 
         $sessions = Session::all();
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -112,12 +147,13 @@ class FoldersController extends Controller
             'files' => $files]);
     }
 
-    public function modal($bidangPrefix, $id, Request $request){
-        $folder = Folder::find($id);
-        return view('content.folders.modal', compact('folder'))->renderSections()['sub-content'];
-    }
-
     public function edit($bidangPrefix, $folderID){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
         $folder = Folder::find($folderID);
         $sessions = Session::all();
@@ -129,14 +165,31 @@ class FoldersController extends Controller
     }
 
     public function update($bidangPrefix, $folderID, Request $request){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
         // $this->validate($request,[
         //     'folder_name' => 'required',
         // ]);
 
         $folder = Folder::find($folderID);
-
-        if(is_null($request->folder_name) || empty($request->folder_name)) throw ValidationException::withMessages(['folder_name' => 'Nama folder tidak boleh kosong!']);
-        if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)) throw ValidationException::withMessages(['folder_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+        if(is_null($request->folder_name) || empty($request->folder_name)){
+            Session::flash('alert-danger', 'Nama folder tidak boleh kosong!');
+            return redirect("/$bidangPrefix/edit/folder/$folderID");
+        } else if(count(
+                    Folder::where('folder_name', '=', $request->folder_name)
+                        ->where('parent_path', '=', $folder->parent_path)
+                        ->where('folder_status', '=', 'available')
+                        ->get()
+                ) > 0){
+            Session::flash('alert-danger', 'Di folder ini sudah ada folder dengan nama yang sama!');
+            return redirect("/$bidangPrefix/edit/folder/$folderID");
+        } else if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)){
+            Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
+            return redirect("/$bidangPrefix/edit/folder/$folderID");
+        }
 
         $folderFlag = 'public';
         if($request->folder_flag == 'private'){
@@ -152,26 +205,54 @@ class FoldersController extends Controller
         $oldFolderName = $folder->folder_name;
         $oldUrlPath = $folder->url_path;
         $newFolderName = $request->folder_name;
+        $pos = strpos($oldUrlPath, $oldFolderName);
+        if ($pos !== false) {
+            $newUrlPath = substr_replace($oldUrlPath, $newFolderName, $pos, strlen($oldFolderName));
+        }
 
         if($oldFolderName != $newFolderName) Storage::move($folder->parent_path .'/'. $oldFolderName, $folder->parent_path .'/'. $newFolderName);
 
+        $folderTrashed = Folder::where('folder_name', '=', $oldFolderName.'_trashed')
+                            ->where('parent_path', '=', self::getFolderPath($bidangPrefix, $oldUrlPath))
+                            ->first();
+        $folderTrashed->folder_name = $newFolderName.'_trashed';
+        $folderTrashed->url_path = $newUrlPath;
+        $folderTrashed->folder_flag = $folderFlag;
+        $folderTrashed->save();
+
         $folder->folder_name = $newFolderName;
+        $folder->url_path = $newUrlPath;
         $folder->folder_flag = $folderFlag;
-        $folder->user_id = Helper::getUserByUsername(Session::get('username'))->id;
         $folder->save();
 
-        $folders = Folder::where('url_path', 'like', $folder->url_path . '%')->get();
+        $folders = Folder::where('url_path', 'like', $oldUrlPath.'/%')->get();
         foreach($folders as $folder){
-            $folder->url_path = Str::of($folder->url_path)->replaceFirst($oldFolderName, $newFolderName);
-            $folder->parent_path = Str::of($folder->parent_path)->replaceFirst($oldFolderName, $newFolderName);
+            $pos = strpos($folder->url_path, $oldFolderName);
+            if ($pos !== false) {
+                $newUrlPath = substr_replace($folder->url_path, $newFolderName, $pos, strlen($oldFolderName));
+            }
+
+            $pos = strpos($folder->parent_path, $oldFolderName);
+            if ($pos !== false) {
+                $newFolderPath = substr_replace($folder->parent_path, $newFolderName, $pos, strlen($oldFolderName));
+            }
+
+            $folder->url_path = $newUrlPath;
+            $folder->parent_path = $newFolderPath;
             $folder->save();
         }
 
-        Alert::success('Folder Berhasil Di Edit!');
+        Session::flash('alert-success', 'Folder berhasil diubah!');
         return redirect('/'. $bidangPrefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
     }
 
     public function delete($bidangPrefix, $folderId){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         $folder = Folder::find($folderId);
         $folders = Folder::where('url_path','like',"$folder->url_path/%")->get();
         $folderUrlPath = $folder->url_path;
@@ -210,20 +291,32 @@ class FoldersController extends Controller
             $_folder->save();
         }
 
-        Alert::warning('Folder Berhasil Dihapus!');
+        Session::flash('alert-success', 'Folder berhasil dihapus!');
         return redirect('/'.$bidangPrefix.'/folder/'.Helper::deleteUrlPathLast($folderUrlPath));
     }
 
     public function move($bidangPrefix, $folderId){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         Session::put('move_folderId', $folderId);
+        Session::put('move_folderName', Folder::find($folderId)->folder_name);
+        Session::forget('move_fileId');
 
         $urlPath = self::deleteUrlPathLast(Helper::getFolderById($folderId)->url_path);
 
         return redirect('/'.$bidangPrefix.'/folder/'.$urlPath);
-
     }
 
     public function moving($bidangPrefix, $urlPath = null){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         /** Folder yang akan dipindahkan (F1) */
         $oldfolder = Folder::find(Session::get('move_folderId'));
@@ -266,10 +359,28 @@ class FoldersController extends Controller
 
         Session::forget('move_folderId');
 
+        Session::flash('alert-success', 'Folder berhasil dipindahkan!');
+        return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
+    }
+
+    public function moveCancel($bidangPrefix, $urlPath = null){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
+        Session::forget('move_folderId');
+
+        Session::flash('alert-warning', 'Pemindahan folder dibatalkan!');
         return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
     }
 
     public function search($bidangPrefix, Request $request){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        }
+
         $this->validate($request,[
             'q' => 'required',
         ]);
@@ -293,7 +404,7 @@ class FoldersController extends Controller
     public function getFolderPath($bidangPrefix, $url_path){
         $base_path = 'public/'.$bidangPrefix;
 
-        if(count((explode('/', $url_path))) > 1){
+        if($url_path != null && count((explode('/', $url_path))) > 1){
             $split = explode('/', $url_path, -1);
             $merge = implode('/', $split);
 

@@ -15,6 +15,12 @@ use Alert;
 class FilesController extends Controller
 {
     public function create($bidangPrefix, $url_path=''){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         // return view('admin.files.create', ['role' => $role_prefix, 'url_path' => $url_path]);
         $sessions = Session::all();
         $roles = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -32,11 +38,22 @@ class FilesController extends Controller
     }
 
     public function store($bidangPrefix, $url_path = null, Request $request){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         $basePath = 'public/' . $bidangPrefix;
         $fileFlag = 'public';
 
-        if(!$request->hasFile('file_name')) throw ValidationException::withMessages(['file_name' => 'Tambahkan minimal 1 file']);
-        if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)) throw ValidationException::withMessages(['file_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+        if(!$request->hasFile('file_name')){
+            Session::flash('alert-danger', 'Tambahkan minimal 1 file!');
+            return redirect("/$bidangPrefix/folder/$url_path");
+        }else if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)){
+            Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
+            return redirect("/$bidangPrefix/folder/$url_path");
+        }
     
         if($request->file_flag == 'private'){
             $fileFlag = 'super_admin,'.$bidangPrefix;
@@ -66,12 +83,16 @@ class FilesController extends Controller
             ]);
         }
         
-        Alert::success('File Berhasil Ditambah!');
+        Session::flash('alert-success', count($request->file('file_name')).' File berhasil ditambahkan');
         return redirect($bidangPrefix . '/folder/' .$url_path);
     }
 
     public function edit($bidangPrefix, $uuid){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
         
         return view('content.files.edit', 
             [
@@ -83,10 +104,17 @@ class FilesController extends Controller
     }
 
     public function update($bidangPrefix, $uuid, Request $request){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         $file = Helper::getFileByUUID($uuid);
-        if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)) throw ValidationException::withMessages(['file_flag_bidang' => 'Pilih minimal satu bidang untuk diberi hak akses']);
+        if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)){
+            Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
+            return redirect("/$bidangPrefix/edit/file/$uuid");
+        }
 
         $fileFlag = 'public';
         if($request->file_flag == 'private'){
@@ -107,36 +135,67 @@ class FilesController extends Controller
             $file->file_name = $request->file_name->getClientOriginalName();
             $file->file_uuid = self::getUUID($storePath);
         }
-        $file->user_id = Session::get('username');
         $file->file_flag = $fileFlag;
         $file->save();
 
+        Session::flash('alert-success', 'File berhasil diubah!');
         return redirect('/'. $bidangPrefix .'/folder/'. $file->folder->url_path);
     }
 
     public function move($bidangPrefix, $uuid) {
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
-        Session::put('move_uuid', $uuid);
-        $urlPath = Helper::deleteUrlPathLast(Helper::getFileByUUID($uuid)->folder->url_path);
+        Session::put('move_fileId', $uuid);
+        Session::put('move_fileName', Helper::getFileByUUID($uuid)->file_name);
+
+        $urlPath = Helper::getFileByUUID($uuid)->folder->url_path;
         return redirect('/'.$bidangPrefix.'/folder/'.$urlPath);
     }
 
     public function moving($bidangPrefix, $urlPath = null){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
         
-        $file = Helper::getFileByUUID(Session::get('move_uuid'));
+        $file = Helper::getFileByUUID(Session::get('move_fileId'));
         $folder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
         Storage::move($file->folder->parent_path .'/'. $file->folder->folder_name.'/'. $file->file_uuid, $folder->parent_path .'/'. $folder->folder_name .'/'. $file->file_uuid);
         $file->folder_id = $folder->id;
         $file->save();
 
-        Session::forget('move_uuid');
+        Session::forget('move_fileId');
+        Session::forget('move_fileName');
+
+        Session::flash('alert-success', 'File berhasil dipindahkan!');
+        return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
+    }
+
+    public function moveCancel($bidangPrefix, $urlPath = null){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
+        Session::forget('move_fileId');
+        Session::forget('move_fileName');
+
+        Session::flash('alert-warning', 'Pemindahan file dibatalkan!');
         return redirect('/'.$bidangPrefix.'/folder/'. $urlPath);
     }
 
     public function destroy($bidangPrefix, $uuid){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != $bidangPrefix && Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         $file = Helper::getFileByUUID($uuid);
         $file->file_status = 'trashed';
@@ -146,7 +205,7 @@ class FilesController extends Controller
 
         // $file->delete();
 
-        Alert::warning('File Berhasil Dihapus!');
+        Session::flash('alert-success', 'File berhasil dihapus!');
         return redirect('/' . $bidangPrefix . '/folder/' . $file->folder->url_path);
     }
 

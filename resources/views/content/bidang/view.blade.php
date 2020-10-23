@@ -12,7 +12,7 @@
             <a href="javascript:void(0)" class="btn btn-success" id="btn-tambah-bidang">Tambah Bidang Baru</a>
         </div>
     </div>
-    {{-- MENAMPILKAN NOTIFIKASi AKSI MENAMBAHKAN BIDANG --}}
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA BIDANG --}}
     <div class="row mb-1">
         <div class="col">
             @foreach (['danger', 'warning', 'success', 'info'] as $jenis)
@@ -22,6 +22,7 @@
             @endforeach
         </div>
     </div>
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA BIDANG --}}
     <div class="row mb-3" id="form-tambah-bidang" style="display: none">
         <div class="col-6">
             <form class="border p-3" action="/super_admin/create/bidang/" method="POST">

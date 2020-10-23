@@ -22,22 +22,6 @@
             </a>
         </div>
         {{-- TOMBOL TAMBAH FILE --}}
-        @if (!is_null(Session::get('move_folderId')))
-            <div class="col-md-auto col-sm mx-auto mb-2">
-                <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
-                    <span data-feather="file-plus"></span>
-                    Pindahkan Ke folder ini
-                </a>
-            </div>
-        @endif
-        @if (!is_null(Session::get('move_uuid')))
-            <div class="col-md-auto col-sm mx-auto mb-2">
-                <a href="{{ url("/$bidangPrefix/moving/file/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
-                    <span data-feather="file-plus"></span>
-                    Pindahkan Ke folder ini
-                </a>
-            </div>
-        @endif
     @endif
         {{-- FORM PENCARIAN --}}
         <div class="col-md">
@@ -60,22 +44,60 @@
     </div>
     {{-- OPSI ATAS --}}
 
-    {{-- MENAMPILKAN ERROR VALIDASI FORM TAMBAH FILE/FOLDER--}}
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
     <div class="row">
         <div class="col">
-            @if ($errors->any())
-            <ul class="list-group list-group-flush">
-            @foreach ($errors->all() as $error)
-                <li class="list-group-item list-group-item-danger">{{ $error }}</li>
-            @endforeach
-            </ul>
+            @foreach (['danger', 'warning', 'success', 'info'] as $jenis)
+            @if(Session::has('alert-' . $jenis))
+                <p class="alert alert-{{ $jenis }}">{{ Session::get('alert-' . $jenis) }} <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
             @endif
+            @endforeach
         </div>
+    </div>
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
+
+    {{-- MENAMPILKAN NOTIFIKASi PEMINDHAKAN PADA FOLDER/FILE --}}
+    <div class="row">
+        <div class="col">
+            @foreach (['folder', 'file'] as $item)
+            @if (Session::has('move_'.$item.'Id'))
+                <p class="alert alert-info">Pindahkan {{ $item }} {{ Session::get('move_'.$item.'Name') }} ke folder {{ Session::get('move_folderNameGoal') }} ? <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
+            @endif
+            @endforeach
+        </div>
+    </div>
+    {{-- MENAMPILKAN NOTIFIKASi PEMINDAHAN PADA FOLDER/FILE --}}
+
+    <div class="row">
+        @if (!is_null(Session::get('move_folderId')))
+            <div class="col-md-2 col-sm">
+                <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                    Pindahkan
+                </a>
+            </div>
+            <div class="col-md-2 col-sm">
+                <a href="{{ url("/$bidangPrefix/movingCancel/folder/$urlPath") }}" class="btn btn-danger btn-block" id="btn-tambah-file">
+                    Batalkan
+                </a>
+            </div>
+        @endif
+        @if (!is_null(Session::get('move_fileId')))
+            <div class="col-md-2 col-sm">
+                <a href="{{ url("/$bidangPrefix/moving/file/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                    Pindahkan
+                </a>
+            </div>
+            <div class="col-md-2 col-sm">
+                <a href="{{ url("/$bidangPrefix/movingCancel/file/$urlPath") }}" class="btn btn-danger btn-block" id="btn-tambah-file">
+                    Batalkan
+                </a>
+            </div>
+        @endif
     </div>
 
     {{-- FORM TAMBAH FILE FOLDER (HIDEN) --}}
     {{-- FORM TAMBAH FOLDER --}}
-    <div class="row my-1">
+    <div class="row mb-1">
         <div class="col-6" id="form-tambah-folder" style="display: none">
             <form class="border p-3" action="/{{$bidangPrefix}}/creating/folder/{{$urlPath}}" method="POST">
                 <h4>Tambah Folder</h4>
@@ -191,7 +213,7 @@
     {{-- FORM TAMBAH FILE FOLDER (HIDEN) --}}
 
     {{-- LOKASI FOLDER --}}
-    <div class="row mt-1 mb-1">
+    <div class="row mb-1">
         <div class="col">
             <a href="{{ url('/'. $bidangPrefix . '/folder') }}"> <strong>Home</strong></a>
             @foreach (Helper::folderLocation($urlPath) as $path)
@@ -235,7 +257,7 @@
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
                             <a href="{{ url("$bidangPrefix/edit/folder/$folder->id") }}" class="btn btn-primary btn-sm" style="width: 20.0%">Edit</a>  
-                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 20.0%">Hapus</a>
+                            <a href="{{ url("$bidangPrefix/delete/folder/$folder->id") }}" class="btn btn-danger btn-sm" style="width: 20.0%" onclick="return confirm('Anda yakin ingin menghapus folder? (Folder akan dipindahkan ke sampah sementara)')">Hapus</a>
                             <a href="{{ url( "$bidangPrefix/move/folder/$folder->id" ) }}" class="btn btn-primary btn-sm" style="width: 30.0%">Pindahkan</a>
                         @endif
                     </td>
@@ -262,7 +284,7 @@
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             <a href="{{ url("$bidangPrefix/edit/file/$file->file_uuid") }}" class="btn btn-primary btn-sm" style="width: 20.0%">Edit</a>  
-                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger btn-sm delete-confirm" style="width: 20.0%">Hapus</a> 
+                            <a href="{{ url("$bidangPrefix/destroy/file/$file->file_uuid") }}" class="btn btn-danger btn-sm" style="width: 20.0%" onclick="return confirm('Anda yakin ingin menghapus file? (file akan dipindahkan ke sampah sementara)')">Hapus</a> 
                             <a href="{{ url( "$bidangPrefix/move/file/$file->file_uuid" ) }}" class="btn btn-primary btn-sm" style="width: 30.0%">Pindahkan</a>
                             <a href="{{ url("$bidangPrefix/download/file/$file->file_uuid") }}" class="btn btn-success btn-sm" style="width: 20.0%">Unduh</a>
                         @else

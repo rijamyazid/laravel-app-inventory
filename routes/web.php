@@ -41,7 +41,9 @@ Route::get('/{bidangPrefix}/edit/folder/{folderID}', 'FoldersController@edit');
 Route::post('/{bidangPrefix}/update/folder/{folderID}', 'FoldersController@update');
 Route::get('/{bidangPrefix}/move/folder/{folderID}', 'FoldersController@move');
 Route::get('/{bidangPrefix}/moving/folder/{url_path?}', 'FoldersController@moving')->where('url_path', '.*');
+Route::get('/{bidangPrefix}/movingCancel/folder/{url_path?}', 'FoldersController@moveCancel')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/delete/folder/{folderID}', 'FoldersController@delete');
+Route::get('/{bidangPrefix}/search', 'FoldersController@search');
 
 //Files Route
 Route::get('/{bidangPrefix}/create/files/{url_path?}', 'FilesController@create')->where('url_path', '.*');
@@ -52,7 +54,7 @@ Route::get('/{bidangPrefix}/destroy/file/{uuid}', 'FilesController@destroy')->wh
 Route::get('/{bidangPrefix}/download/file/{uuid}', 'FilesController@download')->where('url_path', '.*');
 Route::get('/{bidangPrefix}/move/file/{uuid}', 'FilesController@move');
 Route::get('/{bidangPrefix}/moving/file/{url_path?}', 'FilesController@moving')->where('url_path', '.*');
-Route::get('/{bidangPrefix}/search', 'FoldersController@search');
+Route::get('/{bidangPrefix}/movingCancel/file/{url_path?}', 'FilesController@moveCancel')->where('url_path', '.*');
 
 //Bin Route
 Route::get('/{bidangPrefix}/bin', 'BinsController@view');
