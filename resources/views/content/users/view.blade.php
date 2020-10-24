@@ -2,51 +2,69 @@
 
 @section('sub-content')
 <div class="container mt-4">
-    <h3>Kelola User</h3>
-
-    @if (Session::get('rolePrefix') == 'super_admin')
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <ul class="navbar nav nav-pills mr-auto">
-                <li class="nav-item">
-                    <a href="{{ url('/'. Session::get('rolePrefix'). '/create/user') }}" class="btn btn-success">Tambah User</a>
-                </li>
-            </ul>
-        </nav>
-    @endif
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nama</th>
-                <th>Bagian</th>
-                <th>Opsi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($users as $user)
-                <tr>
-                    <td>
-                        <a class="nav-link" href="#">
-                            <span class="mr-3" data-feather="user"></span>
-                            {{ $user->user_name }}
-                        </a>
-                    </td>
-                    <td>
-                        <p class="nav-item">
-                            {{ $user->bidang->bidang_name }}
-                        </p>
-                    </td>
-                    @if (!($user->user_name == 'SuperAdmin'))
-                        <td>
-                            @if (Session::get('rolePrefix') == 'super_admin')
-                                <a href="{{ url('/'. Session::get('rolePrefix'). '/edit/user/'. $user->user_username) }}" class="btn btn-primary">Edit</a> 
-                                <a href="{{ url('/'. Session::get('rolePrefix'). '/delete/user/'. $user->user_username) }}" class="btn btn-danger">Hapus</a></td>  
-                            @endif
-                        </td>
-                    @endif
-                </tr>
+    <div class="row">
+        <div class="col">
+            <h3>Kelola User</h3>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{{ url('/'. Session::get('rolePrefix'). '/create/user') }}" class="btn btn-success">Tambah User</a>
+        </div>
+    </div>
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
+    <div class="row">
+        <div class="col">
+            @foreach (['danger', 'warning', 'success', 'info'] as $jenis)
+            @if(Session::has('alert-' . $jenis))
+                <p class="alert alert-{{ $jenis }}">{{ Session::get('alert-' . $jenis) }} <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
+            @endif
             @endforeach
-        </tbody>
-    </table>
+        </div>
+    </div>
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
+    <div class="row">
+        <div class="col">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th class="pl-3">No</th>
+                        <th class="pl-3">Nama</th>
+                        <th class="pl-3">Bagian</th>
+                        <th class="pl-3">Opsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $count = 1;
+                    @endphp
+                    @foreach ($users as $user)
+                        <tr>
+                            <td class="pl-3">
+                                {{ $count }}
+                            </td>
+                            <td class="pl-3">
+                                {{ $user->user_name }}
+                            </td>
+                            <td class="pl-3">
+                                {{ $user->bidang->bidang_name }}
+                            </td>
+                            @if (!($user->user_name == 'SuperAdmin'))
+                                <td>
+                                    @if (Session::get('rolePrefix') == 'super_admin')
+                                        <a href="{{ url('/'. Session::get('rolePrefix'). '/edit/user/'. $user->user_username) }}" class="btn btn-primary btn-sm" style="width: 30.0%">Edit</a> 
+                                        <a href="{{ url('/'. Session::get('rolePrefix'). '/delete/user/'. $user->user_username) }}" class="btn btn-danger btn-sm" style="width: 30.0%" onclick="return confirm('Anda yakin ingin menghapus user?')">Hapus</a></td>  
+                                    @endif
+                                </td>
+                            @endif
+                        </tr>
+                        @php
+                            $count++;
+                        @endphp
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 @endsection

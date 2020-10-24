@@ -15,7 +15,9 @@ class UsersController extends Controller
 {
 
     public function index($bidangPrefix){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        }
 
         Session::put('side_loc', 'dashboard');
 
@@ -30,7 +32,11 @@ class UsersController extends Controller
     }
 
     public function view(){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         Session::put('side_loc', 'kelola_user');
 
@@ -46,7 +52,11 @@ class UsersController extends Controller
     }
 
     public function create(){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         $bidangs = Bidang::orderBy('bidang_name', 'asc')->get();
 
@@ -58,32 +68,51 @@ class UsersController extends Controller
     }
 
     public function store(Request $request){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
-        $this->validate($request,[
-            'username' => 'required',
-            'password' => 'required',
-            'name' => 'required',
-            'role' => 'required'
-        ]);
+        if(is_null($request->username) || empty($request->username)){
+            $request->session()->flash('alert-danger', 'Masukan username!');
+            return redirect("/super_admin/create/user");
+        } else if(count(User::where('user_name', '=', $request->username)->get()) > 0){
+            $request->session()->flash('alert-danger', 'Username sudah digunakan!');
+            return redirect("/super_admin/create/user");
+        } else if(is_null($request->password) || empty($request->password)){
+            $request->session()->flash('alert-danger', 'Masukan username!');
+            return redirect("/super_admin/create/user");
+        } else if(is_null($request->name) || empty($request->name)){
+            $request->session()->flash('alert-danger', 'Masukan nama');
+            return redirect("/super_admin/create/user");
+        } else if(is_null($request->bidang) || empty($request->bidang)){
+            $request->session()->flash('alert-danger', 'Masukan bidang');
+            return redirect("/super_admin/create/user");
+        }
 
         $username = $request->username;
         $password = $request->password;
         $name = $request->name;
-        $role = $request->role;
+        $bidang = $request->bidang;
 
         User::create([
             'user_username' => $username,
             'user_password' => $password,
             'user_name' => $name,
-            'bidang_id' => $role,
+            'bidang_id' => $bidang,
         ]);
 
+        $request->session()->flash('alert-success', 'User baru sudah ditambahkan');
         return redirect('/'. Session::get('rolePrefix') .'/view/user');
     }
 
     public function edit($bidangPrefix, $username){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
         $user = User::where('user_username' , '=' , $username)->first();
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
@@ -97,13 +126,28 @@ class UsersController extends Controller
     }
     
     public function update($url_path , $username , Request $request){
-        if(is_null(Session::get('username'))) return redirect('/');
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
 
-        $this->validate($request,[
-            'password' => 'required',
-            'name' => 'required',
-            'role' => 'required'
-        ]);
+        if(is_null($request->username) || empty($request->username)){
+            $request->session()->flash('alert-danger', 'Masukan username!');
+            return redirect("/super_admin/edit/user/$username");
+        } else if(count(User::where('user_name', '=', $request->username)->get()) > 0){
+            $request->session()->flash('alert-danger', 'Username sudah digunakan!');
+            return redirect("/super_admin/edit/user/$username");
+        } else if(is_null($request->password) || empty($request->password)){
+            $request->session()->flash('alert-danger', 'Masukan username!');
+            return redirect("/super_admin/edit/user/$username");
+        } else if(is_null($request->name) || empty($request->name)){
+            $request->session()->flash('alert-danger', 'Masukan nama');
+            return redirect("/super_admin/edit/user/$username");
+        } else if(is_null($request->bidang) || empty($request->bidang)){
+            $request->session()->flash('alert-danger', 'Masukan bidang');
+            return redirect("/super_admin/edit/user/$username");
+        }
 
         $user = User::where('user_username' , '=' , $username)->first();
 
@@ -112,54 +156,24 @@ class UsersController extends Controller
         $user->bidang_id = $request->role;
         $user->save();
 
+        $request->session()->flash('alert-success', 'Data user berhasil diubah!');
         return redirect('/'. Session::get('rolePrefix') .'/view/user');
     }
 
     public function delete($bidangPrefix, $username){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        } else if(Session::get('rolePrefix') != 'super_admin') { 
+            return redirect('/'. Session::get('rolePrefix'). '/folder');
+        }
+
         $user = User::where('user_username' , '=' , $username)->first();
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
 
         $user->delete();
 
+        Session::flash('alert-success', 'User berhasil dihapus');
         return redirect('/'. Session::get('rolePrefix') .'/view/user');
-    }
-
-    public function getFolderPath($bidangPrefix, $url_path){
-        $base_path = 'public/'.$bidangPrefix;
-
-        if(count((explode('/', $url_path))) > 1){
-            $split = explode('/', $url_path, -1);
-            $merge = implode('/', $split);
-
-            return $base_path. '/'. $merge;
-        } else {
-            return $base_path;
-        }
-    }
-
-    private function updateUrlPath($oldUrl, $newFoldername){
-        if(!is_null($oldUrl)){
-            if(count((explode('/', $oldUrl))) > 1){
-                $split = explode('/', $oldUrl, -1);
-                $merge = implode('/', $plit);
-                return $merge .'/'. $newFoldername;
-            } else {
-                return $newFoldername;
-            }
-        }
-
-        return null;
-    }
-
-    public function deleteUrlPathLast($url_path){
-        if(count((explode('/', $url_path))) > 1){
-            $split = explode('/', $url_path, -1);
-            $merge = implode('/', $split);
-
-            return $merge;
-        } else {
-            return null;
-        }
     }
 
     public function logout(){

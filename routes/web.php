@@ -25,7 +25,7 @@ Route::get('/{bidangPrefix}/dashboard', 'UsersController@index');
 //Logout Route
 Route::get('/logout', 'UsersController@logout');
 
-//Admin Route
+//User Route
 Route::get('/{bidangPrefix}/view/user', 'UsersController@view');
 Route::get('/{bidangPrefix}/create/user', 'UsersController@create');
 Route::post('/{bidangPrefix}/store/user', 'UsersController@store');

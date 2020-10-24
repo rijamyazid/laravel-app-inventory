@@ -41,31 +41,13 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </head>
 <body>
-    @include('sweetalert::alert')
     @yield('content')
 
     <script>
         feather.replace()
-    </script>
-    <script>
-        $('.delete-confirm').on('click', function (event) {
-            event.preventDefault();
-            const url = $(this).attr('href');
-            swal({
-                title: 'Yakin Hapus?',
-                text: 'Item ini akan dihapus secara permanen!',
-                icon: 'warning',
-                buttons: ["Batal", "Ya!"],
-            }).then(function(value) {
-                if (value) {
-                    window.location.href = url;
-                }
-            });
-        });
     </script>
 
     <script>
@@ -117,11 +99,5 @@
             window.location.replace("/" + val + "/bin");
         }
     </script>
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
 </body>
 </html>

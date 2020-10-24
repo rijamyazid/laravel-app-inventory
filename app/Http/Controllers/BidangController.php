@@ -20,6 +20,8 @@ class BidangController extends Controller
             return redirect('/'. Session::get('rolePrefix'). '/folder');
         }
 
+        Session::put('side_loc', 'kelola_bidang');
+
         return view('content.bidang.view',
         [
             'bidangPrefix' => 'super_admin',

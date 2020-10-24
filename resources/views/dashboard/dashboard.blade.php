@@ -55,15 +55,22 @@
                         @else
                             <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/bin/') }}">
                         @endif
-                                Kelola Sampah Sementara
+                                <div class="row">
+                                    <div class="col-2"><span class="mr-2" data-feather="trash-2"></span></div>
+                                    <div class="col ml-1">Kelola Sampah Sementara</div>
+                                </div>
                             </a>
                     </li>
                 @endif
                 @if (Session::get('rolePrefix') == 'super_admin')
                     <li class="nav-item" >
+                        @if (Session::get('side_loc') != 'kelola_bidang')
                         <a class="nav-link side-link" href="{{ url("/super_admin/view/bidang") }}">
+                        @else
+                        <a class="nav-link side-link-active" style="background: #39C172" href="{{ url("/super_admin/view/bidang") }}">
+                        @endif
                             <span class="mr-2" data-feather="folder-plus"></span>  
-                            Kelola Bidang
+                                Kelola Bidang
                         </a>
                     </li>
                     <li class="nav-item">
