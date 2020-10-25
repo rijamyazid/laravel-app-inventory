@@ -98,6 +98,10 @@
         function binBidangChanges(val){
             window.location.replace("/" + val + "/bin");
         }
+
+        function logsBidangChanges(val){
+            window.location.replace("/" + val + "/logs");
+        }
     </script>
 </body>
 </html>

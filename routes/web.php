@@ -62,6 +62,7 @@ Route::get('/{bidangPrefix}/restore/bin/folder/{folderId}', 'BinsController@rest
 Route::get('/{bidangPrefix}/delete/bin/folder/{folderId}', 'BinsController@deleteFolder');
 Route::get('/{bidangPrefix}/restore/bin/file/{fileUUID}', 'BinsController@restoreFile');
 Route::get('/{bidangPrefix}/delete/bin/file/{fileUUID}', 'BinsController@deleteFile');
+Route::get('/{bidangPrefix}/bin/search', 'BinsController@search');
 
 //Bidang Route
 Route::get('/super_admin/view/bidang', 'BidangController@view');
@@ -69,3 +70,7 @@ Route::post('/super_admin/create/bidang', 'BidangController@create');
 Route::get('/super_admin/edit/bidang/{bidangId}', 'BidangController@edit');
 Route::post('/super_admin/update/bidang/{bidangId}', 'BidangController@update');
 Route::get('/super_admin/delete/bidang/{bidangId}', 'BidangController@delete');
+
+//Logs Route
+Route::get('/{bidangPrefix}/logs', 'LogsController@view');
+Route::get('/{bidangPrefix}/logs/search', 'LogsController@search');

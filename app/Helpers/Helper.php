@@ -7,6 +7,15 @@
 
     class Helper {
         
+        static function convertBidangPrefixToName($bidangPrefix){
+            $split = explode('_', $bidangPrefix);
+            $newSplit = array();
+            foreach ($split as $_split) {
+                array_push($newSplit, ucfirst($_split));
+            }
+            return implode(' ', $newSplit);
+        }
+
         static function getFlags($flags){
             return explode(',', $flags);
         }

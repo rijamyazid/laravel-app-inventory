@@ -10,6 +10,7 @@ use Helper;
 use App\File;
 use App\Folder;
 use App\Bidang;
+use App\Log;
 use Alert;
 
 class FilesController extends Controller
@@ -83,6 +84,13 @@ class FilesController extends Controller
             ]);
         }
         
+        Log::create([
+            'log_type' => 'Tambah File',
+            'keterangan' => 'Menambahkan '.count($request->file('file_name')).' file ke folder \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
         Session::flash('alert-success', count($request->file('file_name')).' File berhasil ditambahkan');
         return redirect($bidangPrefix . '/folder/' .$url_path);
     }
@@ -127,7 +135,11 @@ class FilesController extends Controller
             }
         }
 
+        $oldFileName = $file->file_name;
+        $oldFileFlag = $file->file_flag;
+        $newFileName = $file->file_name;
         if($request->hasFile('file_name')){
+            $newFileName = $request->file_name->getClientOriginalName();
             $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
             Storage::delete($filePath);
 
@@ -137,6 +149,109 @@ class FilesController extends Controller
         }
         $file->file_flag = $fileFlag;
         $file->save();
+
+        $logFileName = 'File tidak berubah';
+        if($oldFileName != $newFileName){
+            $logFileName = 'Folder berubah dari \' '.$oldFileName. ' \' menjadi \' '.$newFileName. ' \'';
+        }
+
+        $logFlag = 'Flag tidak berubah';
+        if($oldFileFlag != $fileFlag){
+            if(count(explode(',', $oldFileFlag)) == 1){
+                if(count(explode(',', $fileFlag)) == 2){
+                    $logFlag = 'Flag berubah dari Publik menjadi Private';
+                } else {
+                    $logFlag = 'Flag berubah dari Publik menjadi [ ';
+                    $count = 0;
+                    foreach(explode(',', $fileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $fileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            } else if(count(explode(',', $oldFileFlag)) == 2){
+                if(count(explode(',', $fileFlag)) == 1){
+                    $logFlag = 'Flag berubah dari Private menjadi Publik';
+                } else {
+                    $logFlag = 'Flag berubah dari Private menjadi [ ';
+                    $count = 0;
+                    foreach(explode(',', $fileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $fileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            } else {
+                if(count(explode(',', $fileFlag)) == 1){
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi Publik';
+                } else if(count(explode(',', $fileFlag)) == 2){
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi Private';
+                } else {
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi [ ';
+                    foreach(explode(',', $fileFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $fileFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            }
+        }
+        Log::create([
+            'log_type' => 'Ubah File',
+            'keterangan' => 'Mengubah data file \' '.$oldFileName. ' \' 
+                                File : '.$logFileName.' 
+                                Folder flag : '.$logFlag,
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
 
         Session::flash('alert-success', 'File berhasil diubah!');
         return redirect('/'. $bidangPrefix .'/folder/'. $file->folder->url_path);
@@ -165,9 +280,18 @@ class FilesController extends Controller
         
         $file = Helper::getFileByUUID(Session::get('move_fileId'));
         $folder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
+        $oldFolder = Folder::find($file->folder_id);
         Storage::move($file->folder->parent_path .'/'. $file->folder->folder_name.'/'. $file->file_uuid, $folder->parent_path .'/'. $folder->folder_name .'/'. $file->file_uuid);
         $file->folder_id = $folder->id;
         $file->save();
+
+        Log::create([
+            'log_type' => 'Pindah File',
+            'keterangan' => 'Memindahkan file \' '.$file->file_name. ' \' dari \' '.$oldfolder->bidang->bidang_name.'/'.$oldfolder->url_path.'/'.$file->file_name.' \' 
+                                ke folder \''.$folder->folder_name.' \' di \' '.$folder->bidang->bidang_name.'/'.$folder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
 
         Session::forget('move_fileId');
         Session::forget('move_fileName');
@@ -205,6 +329,13 @@ class FilesController extends Controller
 
         // $file->delete();
 
+        Log::create([
+            'log_type' => 'Hapus File',
+            'keterangan' => 'Menghapus file \' '.$file->file_name. ' \' dari \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.'/'.$file->file_name.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
         Session::flash('alert-success', 'File berhasil dihapus!');
         return redirect('/' . $bidangPrefix . '/folder/' . $file->folder->url_path);
     }
@@ -214,6 +345,9 @@ class FilesController extends Controller
 
         $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
         $fileName = $file->file_name;
+
+        $file->file_dl_count = $file->file_dl_count + 1;
+        $file->save();
 
         return Storage::download($filePath, $fileName);
     }

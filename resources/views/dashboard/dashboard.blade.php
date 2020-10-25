@@ -61,6 +61,16 @@
                                 </div>
                             </a>
                     </li>
+                    <li>
+                        @if (Session::get('side_loc')  == 'tampilkan_log')
+                            <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. Session::get('rolePrefix') . '/bin/') }}">
+                        @else
+                            <a class="nav-link side-link" href="{{ url('/'. Session::get('rolePrefix') . '/logs') }}">
+                        @endif
+                            <span class="mr-2" data-feather="list"></span>
+                                Tampilkan Log
+                        </a>
+                    </li>
                 @endif
                 @if (Session::get('rolePrefix') == 'super_admin')
                     <li class="nav-item" >

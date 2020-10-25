@@ -12,6 +12,7 @@ use App\User;
 use App\Bidang;
 use App\Folder;
 use App\File;
+use App\Log;
 use Alert;
 
 class FoldersController extends Controller
@@ -53,9 +54,15 @@ class FoldersController extends Controller
         } else if(count(
                     Folder::where('folder_name', '=', $request->folder_name)
                         ->where('parent_path', '=', self::getFolderPath($bidangPrefix, $url_path))
-                        ->where('folder_status', '=', 'available')
                         ->get()
                 ) > 0){
+            $_folder = Folder::where('folder_name', '=', $request->folder_name)
+                            ->where('parent_path', '=', self::getFolderPath($bidangPrefix, $url_path))
+                            ->first();
+            if($_folder->folder_status == 'trashed'){
+                Session::flash('alert-danger', 'Nama folder sama dengan folder yang ada di sampah sementara');
+                return redirect("/$bidangPrefix/folder/$url_path");    
+            }
             Session::flash('alert-danger', 'Di folder ini sudah ada folder dengan nama yang sama!');
             return redirect("/$bidangPrefix/folder/$url_path");
         } else if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)){
@@ -95,6 +102,14 @@ class FoldersController extends Controller
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);
         
+        $folder = Helper::getFolderByUrl($url_path, $bidangPrefix);
+        Log::create([
+            'log_type' => 'Tambah Folder',
+            'keterangan' => 'Menambahkan folder \' '.$request->folder_name. ' \' di \' '.$folder->bidang->bidang_name.'/'.Helper::deleteUrlPathLast($folder->url_path).' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
         Session::flash('alert-success', 'Folder berhasil ditambahkan!');
         return redirect('/'.$bidangPrefix.'/folder/'.$url_path);
     }
@@ -181,11 +196,17 @@ class FoldersController extends Controller
         } else if(count(
                     Folder::where('folder_name', '=', $request->folder_name)
                         ->where('parent_path', '=', $folder->parent_path)
-                        ->where('folder_status', '=', 'available')
                         ->get()
                 ) > 0){
-            Session::flash('alert-danger', 'Di folder ini sudah ada folder dengan nama yang sama!');
-            return redirect("/$bidangPrefix/edit/folder/$folderID");
+                    $_folder = Folder::where('folder_name', '=', $request->folder_name)
+                            ->where('parent_path', '=', $folder->parent_path)
+                            ->first();
+                    if($_folder->folder_status == 'trashed'){
+                        Session::flash('alert-danger', 'Nama folder sama dengan folder yang ada di sampah sementara');
+                        return redirect("/$bidangPrefix/edit/folder/$folderID");    
+                    }
+                    Session::flash('alert-danger', 'Di folder ini sudah ada folder dengan nama yang sama!');
+                    return redirect("/$bidangPrefix/edit/folder/$folderID");
         } else if($request->folder_flag == 'pilih' && is_null($request->folder_flag_bidang)){
             Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
             return redirect("/$bidangPrefix/edit/folder/$folderID");
@@ -204,6 +225,7 @@ class FoldersController extends Controller
 
         $oldFolderName = $folder->folder_name;
         $oldUrlPath = $folder->url_path;
+        $oldFolderFlag = $folder->folder_flag;
         $newFolderName = $request->folder_name;
         $pos = strpos($oldUrlPath, $oldFolderName);
         if ($pos !== false) {
@@ -215,10 +237,13 @@ class FoldersController extends Controller
         $folderTrashed = Folder::where('folder_name', '=', $oldFolderName.'_trashed')
                             ->where('parent_path', '=', self::getFolderPath($bidangPrefix, $oldUrlPath))
                             ->first();
-        $folderTrashed->folder_name = $newFolderName.'_trashed';
-        $folderTrashed->url_path = $newUrlPath;
-        $folderTrashed->folder_flag = $folderFlag;
-        $folderTrashed->save();
+
+        if(!is_null($folderTrashed)){
+            $folderTrashed->folder_name = $newFolderName.'_trashed';
+            $folderTrashed->url_path = $newUrlPath;
+            $folderTrashed->folder_flag = $folderFlag;
+            $folderTrashed->save();
+        }
 
         $folder->folder_name = $newFolderName;
         $folder->url_path = $newUrlPath;
@@ -241,6 +266,109 @@ class FoldersController extends Controller
             $folder->parent_path = $newFolderPath;
             $folder->save();
         }
+
+        $logFolderName = 'Nama folder tidak berubah';
+        if($oldFolderName != $newFolderName){
+            $logFolderName = 'Nama folder berubah dari \' '.$oldFolderName. ' \' menjadi \' '.$newFolderName. ' \'';
+        }
+
+        $logFlag = 'Flag tidak berubah';
+        if($oldFolderFlag != $folderFlag){
+            if(count(explode(',', $oldFolderFlag)) == 1){
+                if(count(explode(',', $folderFlag)) == 2){
+                    $logFlag = 'Flag berubah dari Publik menjadi Private';
+                } else {
+                    $logFlag = 'Flag berubah dari Publik menjadi [ ';
+                    $count = 0;
+                    foreach(explode(',', $folderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $folderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            } else if(count(explode(',', $oldFolderFlag)) == 2){
+                if(count(explode(',', $folderFlag)) == 1){
+                    $logFlag = 'Flag berubah dari Private menjadi Publik';
+                } else {
+                    $logFlag = 'Flag berubah dari Private menjadi [ ';
+                    $count = 0;
+                    foreach(explode(',', $folderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $folderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            } else {
+                if(count(explode(',', $folderFlag)) == 1){
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFolderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFolderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi Publik';
+                } else if(count(explode(',', $folderFlag)) == 2){
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFolderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFolderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi Private';
+                } else {
+                    $logFlag = 'Flag berubah dari [ ';
+                    $count = 0;
+                    foreach(explode(',', $oldFolderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $oldFolderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ] menjadi [ ';
+                    foreach(explode(',', $folderFlag) as $_flag){
+                        if($_flag != 'super_admin' && $_flag != $bidangPrefix){
+                            $logFlag = $logFlag . Helper::convertBidangPrefixToName($_flag);
+                            if($count != (count(explode(',', $folderFlag)) - 1)){
+                                $logFlag = $logFlag. ', ';
+                            }
+                        }
+                        $count++;
+                    }
+                    $logFlag = $logFlag . ' ]';
+                }
+            }
+        }
+        Log::create([
+            'log_type' => 'Ubah Folder',
+            'keterangan' => 'Mengubah data folder \' '.$oldFolderName. ' \' 
+                                Nama folder : '.$logFolderName.' 
+                                Folder flag : '.$logFlag,
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
 
         Session::flash('alert-success', 'Folder berhasil diubah!');
         return redirect('/'. $bidangPrefix .'/folder/'. self::deleteUrlPathLast($oldUrlPath));
@@ -291,6 +419,14 @@ class FoldersController extends Controller
             $_folder->save();
         }
 
+        $folder = Folder::find($folderId);
+        Log::create([
+            'log_type' => 'Hapus Folder',
+            'keterangan' => 'Menghapus folder \' '.$folder->folder_name. ' \' dari \' '.$folder->bidang->bidang_name.'/'.$folder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
         Session::flash('alert-success', 'Folder berhasil dihapus!');
         return redirect('/'.$bidangPrefix.'/folder/'.Helper::deleteUrlPathLast($folderUrlPath));
     }
@@ -323,8 +459,9 @@ class FoldersController extends Controller
         /** Folder lokasi tujuan (F2) */
         $newFolder = Helper::getFolderByUrl($urlPath, $bidangPrefix);
 
-        /** Simpan parent path dari folder (F1) */
+        /** Simpan parent path dan url_path dari folder (F1) */
         $oldParentPath = $oldfolder->parent_path;
+        $oldUrlPath = $oldfolder->url_path;
 
         /** Ambil semua data folder dan sub-folder didalam folder (F1) -> (F11) */
         $folders = Folder::where('url_path', 'like', $oldfolder->url_path . '/%')->get();
@@ -357,6 +494,14 @@ class FoldersController extends Controller
             $folder->save();
         }
 
+        Log::create([
+            'log_type' => 'Pindah Folder',
+            'keterangan' => 'Memindahkan folder \' '.$oldfolder->folder_name. ' \' dari \' '.$oldfolder->bidang->bidang_name.'/'.$oldUrlPath.' \' 
+                                ke folder \''.$newFolder->folder_name.' \' di \' '.$newFolder->bidang->bidang_name.'/'.$newFolder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
         Session::forget('move_folderId');
 
         Session::flash('alert-success', 'Folder berhasil dipindahkan!');
@@ -387,17 +532,22 @@ class FoldersController extends Controller
 
         $sessions = Session::all();
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
+        $folders = Folder::where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
+                    ->where('folder_name', 'like', $request->q . '%')
+                    ->where('folder_status', '=', 'available')
+                    ->orderBy('folder_name', 'asc')->get();;
         $files = File::join('folders', 'folder_id','=', 'folders.id')
             ->join('bidang', 'folders.bidang_id', '=', 'bidang.id')
             ->where('file_name', 'like', $request->q . '%')
             ->where('bidang.bidang_prefix', '=', $bidangPrefix)
+            ->where('file_status', '=', 'available')
             ->orderBy('file_name', 'asc')->get();
 
         return view('content.folders.view', 
             ['urlPath'=> null,
             'bidangPrefix' => $bidangPrefix,
             'bidangS' => $bidangS,
-            'folders' => [],
+            'folders' => $folders,
             'files' => $files]);
     }
 

@@ -3,8 +3,13 @@
 @section('sub-content')
 <div class="container-fluid p-3">
 
-    {{-- OPSI ATAS --}}
     <div class="row mt-3">
+        <div class="col">
+            <h2>Sampah Sementara</h2>
+        </div>
+    </div>
+    {{-- OPSI ATAS --}}
+    <div class="row mb-3">
         @if ( Session::get('rolePrefix') == 'super_admin')
             <div class="col-md">
                 <select class="form-control" name="bin_bidang" id="bin_bidang" onchange="binBidangChanges(this.value)">
@@ -20,7 +25,7 @@
         @endif
         {{-- FORM PENCARIAN --}}
         <div class="col-md">
-            <form class="form-inline float-right" action="{{ url('/' . $bidangPrefix . '/search') }}" method="GET">
+            <form class="form-inline float-right" action="{{ url('/' . $bidangPrefix . '/bin/search') }}" method="GET">
                 <div class="form-group mr-3">
                     <input class="form-control" type="text" placeholder="Cari File" name="bidang" hidden value="{{ $bidangPrefix }}">
                 </div>
@@ -39,6 +44,18 @@
     </div>
     {{-- OPSI ATAS --}}
 
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA BIN --}}
+    <div class="row">
+        <div class="col">
+            @foreach (['danger', 'warning', 'success', 'info'] as $jenis)
+            @if(Session::has('alert-' . $jenis))
+                <p class="alert alert-{{ $jenis }}">{{ Session::get('alert-' . $jenis) }} <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
+            @endif
+            @endforeach
+        </div>
+    </div>
+    {{-- MENAMPILKAN NOTIFIKASi AKSI PADA BIN --}}
+
     {{-- LOKASI FOLDER --}}
     <div class="row mt-1 mb-1">
         <div class="col">
@@ -50,15 +67,6 @@
         </div>
     </div>
     {{-- LOKASI FOLDER --}}
-
-    {{-- ALERT UNTUK AKSI --}}
-    @if ($message = Session::get('successFolder'))
-      <div class="alert alert-success alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button> 
-          <strong>{{ $message }}</strong>
-      </div>
-    @endif
-    {{-- ALERT UNTUK AKSI --}}
 
     {{-- TAMPILAN FILE FOLDER --}}
     <table class="table table-bordered table-sm">
@@ -114,7 +122,7 @@
                         @endif
                     </td>
                     <td>
-                        {{ $folder->bidang->bidang_name.'/'.$file->folder->url_path }}
+                        {{ $file->folder->bidang->bidang_name.'/'.$file->folder->url_path }}
                     </td>
                     <td>
                         {{ $file->updated_at }}

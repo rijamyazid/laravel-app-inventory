@@ -224,15 +224,6 @@
     </div>
     {{-- LOKASI FOLDER --}}
 
-    {{-- ALERT UNTUK AKSI --}}
-    @if ($message = Session::get('successFolder'))
-      <div class="alert alert-success alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button> 
-          <strong>{{ $message }}</strong>
-      </div>
-    @endif
-    {{-- ALERT UNTUK AKSI --}}
-
     {{-- TAMPILAN FILE FOLDER --}}
     <table class="table table-bordered table-sm">
         <thead>

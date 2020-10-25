@@ -9,6 +9,7 @@ use Helper;
 use App\Bidang;
 use App\Folder;
 use App\File;
+use App\Log;
 
 class BinsController extends Controller
 {
@@ -18,9 +19,7 @@ class BinsController extends Controller
         Session::put('side_loc', 'kelola_sampah_sementara');
 
         $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
-        
-        if(is_null($urlPath)) $url_path_new = 'public/'.$bidangPrefix;
-        else $url_path_new = 'public/'.$bidangPrefix.'/'.$urlPath;
+
         if($bidangPrefix == 'super_admin') $bidangPrefix = Bidang::where('bidang_prefix', '!=', 'super_admin')->orderBy('bidang_name', 'asc')->first()->bidang_prefix;
         $folders = Folder::where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
                     ->where('folder_name','like','%_trashed')
@@ -77,6 +76,14 @@ class BinsController extends Controller
         $folderActual->save();
         $folder->delete();
 
+        Log::create([
+            'log_type' => 'Pulihkan Folder',
+            'keterangan' => 'Memulihkan folder \' '.$folderActual->folder_name. ' \' ke \' '.$folderActual->bidang->bidang_name.'/'.Helper::deleteUrlPathLast($folderActual->url_path).' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
+        Session::flash('alert-success', 'Folder berhasil dipulihkan!');
         return redirect('/' . $bidangPrefix . '/bin');
     }
 
@@ -91,6 +98,10 @@ class BinsController extends Controller
         $folderTrashed = Folder::where('url_path', '=', $folder->url_path)
                             ->where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
                             ->get();
+        $oldFolderName = $folderTrashed[0]->folder_name;
+        $oldFolderUrl = $folderTrashed[0]->url_path;
+        $oldBidangName = $folderTrashed[0]->bidang->bidang_name;
+
         foreach($folders as $_folder){
             // if($folderTrashed[0]->folder_status == 'trashed'){
                 Storage::deleteDirectory($_folder->parent_path.'/'.$_folder->folder_name);
@@ -105,6 +116,14 @@ class BinsController extends Controller
             $folderTrashed[1]->delete();
         }
 
+        Log::create([
+            'log_type' => 'Hapus Folder (Permanen)',
+            'keterangan' => 'Menghapus folder \' '.$oldFolderName. ' \' secara permanan dari \' '.$oldBidangName.'/'.$oldFolderUrl.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
+        Session::flash('alert-success', 'Folder berhasil dihapus secara permanen');
         return redirect('/' . $bidangPrefix . '/bin');
     }
 
@@ -123,6 +142,14 @@ class BinsController extends Controller
         $file->file_status = 'available';
         $file->save();
 
+        Log::create([
+            'log_type' => 'Pulihkan File',
+            'keterangan' => 'Memulihkan file \' '.$file->file_name. ' \' ke \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
+        Session::flash('alert-success', 'File berhasil dipulihkan!');
         return redirect('/' . $bidangPrefix . '/bin');
     }
 
@@ -134,6 +161,44 @@ class BinsController extends Controller
 
         $file->delete();
 
+        Log::create([
+            'log_type' => 'Hapus File (Permanen)',
+            'keterangan' => 'Menghapus file \' '.$file->file_name. ' \' secara permanen dari \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.' \'',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
+
+        Session::flash('alert-success', 'File berhasil dihapus secara permanen!');
         return redirect('/' . $bidangPrefix . '/bin');
+    }
+
+    public function search($bidangPrefix, Request $request){
+        if(is_null(Session::get('username'))) {
+            return redirect('/');
+        }
+
+        $this->validate($request,[
+            'q' => 'required',
+        ]);
+
+        if($bidangPrefix == 'super_admin') $bidangPrefix = Bidang::where('bidang_prefix', '!=', 'super_admin')->orderBy('bidang_name', 'asc')->first()->bidang_prefix;
+        $bidangS = Bidang::orderBy('bidang_name', 'asc')->get();
+        $folders = Folder::where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
+                    ->where('folder_name', 'like', $request->q . '%')
+                    ->where('folder_status', '=', 'trashed')
+                    ->orderBy('folder_name', 'asc')->get();;
+        $files = File::join('folders', 'folder_id','=', 'folders.id')
+            ->join('bidang', 'folders.bidang_id', '=', 'bidang.id')
+            ->where('file_name', 'like', $request->q . '%')
+            ->where('bidang.bidang_prefix', '=', $bidangPrefix)
+            ->where('file_status', '=', 'trashed')
+            ->orderBy('file_name', 'asc')->get();
+
+        return view('content.bins.view', 
+            ['urlPath'=> null,
+            'bidangPrefix' => $bidangPrefix,
+            'bidangS' => $bidangS,
+            'folders' => $folders,
+            'files' => $files]);
     }
 }
