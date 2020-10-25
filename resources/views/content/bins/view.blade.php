@@ -92,7 +92,7 @@
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             {{-- <a href="{{ url("$role/edit/folder/$folder->id") }}" class="btn btn-primary">Edit</a> --}}
                             <a href="{{ url("$bidangPrefix/restore/bin/folder/$folder->id") }}" class="btn btn-success btn-sm" >Pulihkan</a>  
-                            <a href="{{ url("$bidangPrefix/delete/bin/folder/$folder->id") }}" class="btn btn-danger btn-sm delete-confirm" >Hapus Permanen</a>
+                            <a href="{{ url("$bidangPrefix/delete/bin/folder/$folder->id") }}" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin ingin menghapus folder ini secara PERMANEN ?')">Hapus Permanen</a>
                         @endif
                     </td>
                     <td>
@@ -118,7 +118,7 @@
                     <td>
                         @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
                             <a href="{{ url("$bidangPrefix/restore/bin/file/$file->file_uuid") }}" class="btn btn-success btn-sm" >Pulihkan</a>  
-                            <a href="{{ url("$bidangPrefix/delete/bin/file/$file->file_uuid") }}" class="btn btn-danger btn-sm delete-confirm" >Hapus Permanen</a>
+                            <a href="{{ url("$bidangPrefix/delete/bin/file/$file->file_uuid") }}" class="btn btn-danger btn-sm delete-confirm" onclick="return confirm('Anda yakin ingin menghapus file ini secara PERMANEN ?')">Hapus Permanen</a>
                         @endif
                     </td>
                     <td>
