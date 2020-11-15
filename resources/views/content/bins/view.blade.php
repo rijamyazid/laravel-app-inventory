@@ -81,7 +81,7 @@
                         {{ $folder->bidang->bidang_name.'/'.Helper::deleteUrlPathLast($folder->url_path) }}
                     </td>
                     <td>
-                        {{ $folder->updated_at }}
+                        {{ Helper::convertTime($folder->updated_at) }}
                     </td>
                 </tr>
             @endforeach
@@ -107,7 +107,7 @@
                         {{ $file->folder->bidang->bidang_name.'/'.$file->folder->url_path }}
                     </td>
                     <td>
-                        {{ $file->updated_at }}
+                        {{ Helper::convertTime($file->updated_at) }}
                     </td>
                 </tr>
             @endforeach

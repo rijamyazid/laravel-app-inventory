@@ -258,7 +258,7 @@
                     </td>
                     <td></td>
                     <td>
-                        {{ $folder->created_at }}
+                        {{ Helper::convertTime($folder->created_at) }}
                     </td>
                 </tr>
             @endforeach
@@ -291,7 +291,7 @@
                         {{ $file->file_dl_count }}
                     </td>
                     <td>
-                        {{ $file->created_at }}
+                        {{ Helper::convertTime($file->created_at) }}
                     </td>
                 </tr>
             @endforeach

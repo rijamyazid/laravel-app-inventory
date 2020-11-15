@@ -17,7 +17,7 @@ class LogsController extends Controller
 
         if($bidangPrefix == 'super_admin') $bidangPrefix = Bidang::where('bidang_prefix', '!=', 'super_admin')->orderBy('bidang_name', 'asc')->first()->bidang_prefix;
         $logs = Log::where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
-                ->orderBy('logs.id', 'desc')->get();
+                ->orderBy('logs.id', 'desc')->simplePaginate(20);
         
         return view('content.logs.view', 
                 [

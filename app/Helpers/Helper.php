@@ -7,6 +7,15 @@
 
     class Helper {
         
+        static function convertTime($oldTime){
+            $time = explode(' ', $oldTime);
+            $newDate = implode('-', array_reverse(explode('-', $time[0])));
+            $newTime = implode(':', array_reverse(explode('-', $time[1])));
+            $newFormat = array($newTime, $newDate);
+
+            return implode(' ', $newFormat);
+        }
+
         static function convertBidangPrefixToName($bidangPrefix){
             $split = explode('_', $bidangPrefix);
             $newSplit = array();

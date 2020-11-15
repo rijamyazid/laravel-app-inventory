@@ -26,7 +26,7 @@
         <div class="col">
             <table class="table table-bordered table-sm">
                 <thead>
-                    <th style="width=10%">No</th>
+                    
                     <th style="width=20%">Jenis Aksi</th>
                     <th style="width=30%">Keterangan</th>
                     <th style="width=20%">User</th>
@@ -38,18 +38,22 @@
                     @endphp
                     @foreach ($logs as $log)
                     <tr>
-                        <td style="width=10%" >{{ $count }}</td>
+                        
+                        
                         <td style="width=20%">{{ $log->log_type }}</td>
                         <td style="width=30%">{!! nl2br(e($log->keterangan)) !!}</td>
-                        <td style="width=20%">{{ $log->user->user_name }}</td>
-                        <td style="width=20%">{{ $log->created_at }}</td>
-                        @php
-                            $count++;
-                        @endphp
+                        @if (!is_null($log->user_id))
+                            <td style="width=20%">{{ $log->user->user_name }}</td>
+                        @else
+                            <td style="width=20%"></td>
+                        @endif
+                        <td style="width=20%">{{ Helper::convertTime($log->created_at) }}</td>
+                        
                     </tr>
                     @endforeach
                 </tbody>
-            </table>  
+            </table> 
+            {!! $logs->links() !!}
         </div>
     </div>
 </div>  

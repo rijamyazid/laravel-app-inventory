@@ -348,11 +348,17 @@ class FilesController extends Controller
         $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
         $fileName = $file->file_name;
 
-        $user = Session::get('username');
+        if(Session::get('username') != 'Guest'){
+            $user_id = Helper::getUserByUsername(Session::get('username'))->id;
+            $user = Session::get('username');
+        } else {
+            $user_id = null;
+            $user = 'Guest';
+        }
         Log::create([
             'log_type' => 'Download File',
             'keterangan' => 'Mengunduh file \' '.$file->file_name. ' \' oleh \' ('. $user .')',
-            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'user_id' => $user_id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);
 

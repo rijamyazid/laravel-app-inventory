@@ -3,7 +3,7 @@
 @section('content')
 <nav class="navbar navbar-expand-md navbar-light sticky-top" style="background-color: #436EB3; z-index: 110;">
     <div class="mx-auto order-0">
-        <a class="navbar-brand mx-auto text-white" href="/{role_prefix}">Sistem Manajemen Arsip BKKBN Jawa Barat</a>
+        <a class="navbar-brand mx-auto text-white" href="/{role_prefix}">Sistem Manajemen Arsip BKKBN Jawa Barat / {{Session::get('role')}}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
             <span class="navbar-toggler-icon"></span>
         </button>
