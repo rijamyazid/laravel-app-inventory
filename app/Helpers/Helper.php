@@ -16,6 +16,16 @@
             return implode(' ', $newFormat);
         }
 
+        static function validateExtension($extension){
+            if($extension == 'png' || $extension == 'jpg' || $extension == 'jpeg'
+                || $extension == 'doc' || $extension == 'docx' || $extension == 'csv' ||
+                $extension == 'ppt' || $extension == 'pptx' || $extension == 'xls' ||
+                $extension == 'xlsx' || $extension == 'pdf'){
+                    return true;
+            }
+            return false;
+        }
+
         static function convertBidangPrefixToName($bidangPrefix){
             $split = explode('_', $bidangPrefix);
             $newSplit = array();

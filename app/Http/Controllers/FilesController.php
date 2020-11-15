@@ -48,12 +48,21 @@ class FilesController extends Controller
         $basePath = 'public/' . $bidangPrefix;
         $fileFlag = 'public';
 
+        $file = $request->file('file_name');
         if(!$request->hasFile('file_name')){
             Session::flash('alert-danger', 'Tambahkan minimal 1 file!');
             return redirect("/$bidangPrefix/folder/$url_path");
         }else if($request->file_flag == 'pilih' && is_null($request->file_flag_bidang)){
             Session::flash('alert-danger', 'Pilih minimal satu bidang untuk diberi hak akses!');
             return redirect("/$bidangPrefix/folder/$url_path");
+        }
+
+        foreach ($file as $_file) {
+            // dd($_file->getClientOriginalExtension());
+            if(!Helper::validateExtension($_file->getClientOriginalExtension())){
+                Session::flash('alert-danger', 'Extensi tidak didukung!');
+                return redirect("/$bidangPrefix/folder/$url_path");
+            }
         }
     
         if($request->file_flag == 'private'){
