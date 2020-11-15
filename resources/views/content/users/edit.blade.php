@@ -22,11 +22,11 @@
         </div>
         <div class="form-group">
             <label for="pwdInput">Password</label>
-            <input type="text" class="form-control" name="password" placeholder="Password" value="{{$user->user_password}}" required>
+            <input type="text" class="form-control" name="password" placeholder="Password" value="{{$user->user_password}}" maxlength="25" minlength="8" required>
         </div>
         <div class="form-group">
             <label for="nameInput">Nama Lengkap</label>
-            <input type="text" class="form-control" name="name" placeholder="Nama Lengkap" value="{{$user->user_name}}" required>
+            <input type="text" class="form-control" name="name" placeholder="Nama Lengkap" value="{{$user->user_name}}" maxlength="25" required>
         </div>
         <div class="form-group">
             <label for="roleInput">Bagian</label>

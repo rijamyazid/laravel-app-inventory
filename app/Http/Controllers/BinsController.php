@@ -131,12 +131,14 @@ class BinsController extends Controller
         if(is_null(Session::get('username'))) return redirect('/');
 
         $file = Helper::getFileByUUID($uuid);
-        foreach(Helper::folderLocation($file->folder->url_path) as $paths){
-            $_foldersTrashed = Folder::where('url_path', '=', substr($paths['urlPath'], 0, -1))
-                                ->where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
-                                ->get();
-            $_foldersTrashed[0]->folder_status = 'available';
-            $_foldersTrashed[0]->save();
+        if(!is_null($file->folder->url_path)){
+            foreach(Helper::folderLocation($file->folder->url_path) as $paths){
+                $_foldersTrashed = Folder::where('url_path', '=', substr($paths['urlPath'], 0, -1))
+                                    ->where('bidang_id', '=', Helper::getBidangByPrefix($bidangPrefix)->id)
+                                    ->get();
+                $_foldersTrashed[0]->folder_status = 'available';
+                $_foldersTrashed[0]->save();
+            }
         }
 
         $file->file_status = 'available';

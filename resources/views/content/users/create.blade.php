@@ -18,15 +18,15 @@
         {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
         <div class="form-group">
             <label for="usernameInput">Username</label>
-            <input type="text" class="form-control" name="username" placeholder="Username">
+            <input type="text" class="form-control" name="username" placeholder="Username" maxlength="25">
         </div>
         <div class="form-group">
             <label for="pwdInput">Password</label>
-            <input type="text" class="form-control" name="password" placeholder="Password">
+            <input type="password" class="form-control" name="password" placeholder="Password" maxlength="25" minlength="8">
         </div>
         <div class="form-group">
             <label for="nameInput">Nama Lengkap</label>
-            <input type="text" class="form-control" name="name" placeholder="Nama Lengkap">
+            <input type="text" class="form-control" name="name" placeholder="Nama Lengkap" maxlength="25">
         </div>
         <div class="form-group">
             <label for="roleInput">Bagian</label>

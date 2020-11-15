@@ -20,7 +20,7 @@
                 {{-- MENAMPILKAN NOTIFIKASi AKSI PADA FOLDER/FILE --}}
                 <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder" value="{{$folder->folder_name}}">
+                        <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder" value="{{$folder->folder_name}}" maxlength="30">
                     </div>
                 </div>
                 <hr class="mb-2">

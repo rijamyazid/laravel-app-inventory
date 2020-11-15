@@ -84,6 +84,7 @@ class FilesController extends Controller
             ]);
         }
         
+        $file = Helper::getFileByUUID($uuid);
         Log::create([
             'log_type' => 'Tambah File',
             'keterangan' => 'Menambahkan '.count($request->file('file_name')).' file ke folder \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.' \'',
@@ -287,7 +288,7 @@ class FilesController extends Controller
 
         Log::create([
             'log_type' => 'Pindah File',
-            'keterangan' => 'Memindahkan file \' '.$file->file_name. ' \' dari \' '.$oldfolder->bidang->bidang_name.'/'.$oldfolder->url_path.'/'.$file->file_name.' \' 
+            'keterangan' => 'Memindahkan file \' '.$file->file_name. ' \' dari \' '.$oldFolder->bidang->bidang_name.'/'.$oldFolder->url_path.' \' 
                                 ke folder \''.$folder->folder_name.' \' di \' '.$folder->bidang->bidang_name.'/'.$folder->url_path.' \'',
             'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
@@ -329,9 +330,10 @@ class FilesController extends Controller
 
         // $file->delete();
 
+        $file_url = 
         Log::create([
             'log_type' => 'Hapus File',
-            'keterangan' => 'Menghapus file \' '.$file->file_name. ' \' dari \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path.'/'.$file->file_name.' \'',
+            'keterangan' => 'Menghapus file \' '.$file->file_name. ' \' dari \' '.$file->folder->bidang->bidang_name.'/'.$file->folder->url_path,
             'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);
@@ -345,6 +347,14 @@ class FilesController extends Controller
 
         $filePath = $file->folder->parent_path . '/' . $file->folder->folder_name .'/'. $file->file_uuid;
         $fileName = $file->file_name;
+
+        $user = Session::get('username');
+        Log::create([
+            'log_type' => 'Download File',
+            'keterangan' => 'Mengunduh file \' '.$file->file_name. ' \' oleh \' ('. $user .')',
+            'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
+            'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
+        ]);
 
         $file->file_dl_count = $file->file_dl_count + 1;
         $file->save();

@@ -25,10 +25,10 @@
           <form action="/login" method="POST">
             @csrf
             <div class="form-group">
-                <input class="form-control" type="text" name="username" placeholder="Username">
+                <input class="form-control" type="text" name="username" placeholder="Username" maxlength="25">
             </div>
             <div class="form-group">
-                <input class="form-control" type="password" name="password" placeholder="Password">
+                <input class="form-control" type="password" name="password" placeholder="Password" maxlength="25">
             </div>
             <div class="form-group">
                 <input class="btn btn-primary btn-block" type="submit" value="Login">

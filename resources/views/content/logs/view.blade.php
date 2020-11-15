@@ -9,7 +9,7 @@
     </div>
     <div class="row mb-3">
         @if ( Session::get('rolePrefix') == 'super_admin')
-            <div class="col-md">
+            <div class="col-md-6">
                 <select class="form-control" name="bin_bidang" id="bin_bidang" onchange="logsBidangChanges(this.value)">
                     @foreach ($bidangS as $bidang)
                         @if ($bidang->bidang_prefix != 'super_admin')
@@ -21,24 +21,6 @@
                 </select>
             </div>
         @endif
-        {{-- FORM PENCARIAN --}}
-        <div class="col-md">
-            <form class="form-inline float-right" action="{{ url('/' . $bidangPrefix . '/logs/search') }}" method="GET">
-                <div class="form-group mr-3">
-                    <input class="form-control" type="text" placeholder="Cari File" name="bidang" hidden value="{{ $bidangPrefix }}">
-                </div>
-                <div class="form-group mr-3">
-                    <input class="form-control" type="text" placeholder="Cari logs" name="q">
-                </div>
-                <div class="form-group">
-                    {{-- <input class="btn btn-success" type="submit" value="Cari"> --}}
-                    <button class="btn btn-success" type="submit" value="Cari">
-                        <span data-feather="search"></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-        {{-- FORM PENCARIAN --}}
     </div>
     <div class="row">
         <div class="col">

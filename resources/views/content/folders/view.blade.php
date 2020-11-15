@@ -104,7 +104,7 @@
                 @csrf
                 <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder">
+                        <input type="text" class="form-control" name="folder_name" placeholder="Nama Folder" maxlength="30">
                     </div>
                     <div class="col-4">
                         <input type="submit" class="btn btn-success" value="Tambah Folder">
@@ -230,7 +230,8 @@
             <tr>
                 <th style="width: 25.0%">Nama</th>
                 <th style="width: 35.0%">Opsi</th>
-                <th style="width: 20.0%">Dibuat Oleh</th>
+                <th style="width: 10.0%">Dibuat Oleh</th>
+                <th style="width: 10.0%">Jumlah Unduhan</th>
                 <th style="width: 20.0%">Waktu</th>
             </tr>
         </thead>
@@ -255,6 +256,7 @@
                     <td>
                         {{ $folder->user->user_name }}
                     </td>
+                    <td></td>
                     <td>
                         {{ $folder->created_at }}
                     </td>
@@ -284,6 +286,9 @@
                     </td>
                     <td>
                         {{ $file->user->user_name }}
+                    </td>
+                    <td>
+                        {{ $file->file_dl_count }}
                     </td>
                     <td>
                         {{ $file->created_at }}

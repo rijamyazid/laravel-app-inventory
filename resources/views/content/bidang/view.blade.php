@@ -30,7 +30,7 @@
                 @csrf
                 <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" name="bidang_name" placeholder="Nama Bidang" >
+                        <input type="text" class="form-control" name="bidang_name" placeholder="Nama Bidang" maxlength="30">
                     </div>
                     <div class="col-4">
                         <input type="submit" class="btn btn-success" value="Tambah Bidang">

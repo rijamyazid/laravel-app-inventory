@@ -105,7 +105,7 @@ class FoldersController extends Controller
         $folder = Helper::getFolderByUrl($url_path, $bidangPrefix);
         Log::create([
             'log_type' => 'Tambah Folder',
-            'keterangan' => 'Menambahkan folder \' '.$request->folder_name. ' \' di \' '.$folder->bidang->bidang_name.'/'.Helper::deleteUrlPathLast($folder->url_path).' \'',
+            'keterangan' => 'Menambahkan folder \' '.$request->folder_name. ' \' di \' '.$folder->bidang->bidang_name.'/'.$folder->url_path.' \'',
             'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
             'bidang_id' => Helper::getBidangByPrefix($bidangPrefix)->id
         ]);

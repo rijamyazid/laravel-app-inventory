@@ -19,7 +19,7 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" name="bidang_name" placeholder="Nama Bidang" value="{{$bidang->bidang_name}}">
+                        <input type="text" class="form-control" name="bidang_name" placeholder="Nama Bidang" value="{{$bidang->bidang_name}}" maxlength="30">
                     </div>
                 </div>
                 <hr>
