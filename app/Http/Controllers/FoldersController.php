@@ -197,7 +197,7 @@ class FoldersController extends Controller
                     Folder::where('folder_name', '=', $request->folder_name)
                         ->where('parent_path', '=', $folder->parent_path)
                         ->get()
-                ) > 0){
+                ) > 0 && $request->folder_name != $folder->folder_name){
                     $_folder = Folder::where('folder_name', '=', $request->folder_name)
                             ->where('parent_path', '=', $folder->parent_path)
                             ->first();

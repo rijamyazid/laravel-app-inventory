@@ -86,7 +86,7 @@ class FilesController extends Controller
              
             File::create([
                 'file_uuid' => $uuid,
-                'file_name' => $filename,
+                'file_name' => substr($filename, 0, 29),
                 'file_flag' => $fileFlag,
                 'user_id' => Helper::getUserByUsername(Session::get('username'))->id,
                 'folder_id' => Helper::getFolderByUrl($url_path, $bidangPrefix)->id
@@ -374,6 +374,7 @@ class FilesController extends Controller
         $file->file_dl_count = $file->file_dl_count + 1;
         $file->save();
 
+        Session::flash('alert-success', 'File berhasil diunduh!');
         return Storage::download($filePath, $fileName);
     }
 

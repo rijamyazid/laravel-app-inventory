@@ -37,10 +37,12 @@
                 @foreach ($bidangS as $bidang)        
                     @if ($bidang->bidang_name != 'Super Admin')
                         <li class="nav-item">
-                        @if (Session::get('side_loc')  == $bidang->bidang_prefix)
+                        @if (Session::get('side_loc') == $bidang->bidang_prefix)
                             <a class="nav-link side-link-active" style="background: #39C172" href="{{ url('/'. $bidang->bidang_prefix . '/folder/') }}">
                         @else
-                            <a class="nav-link side-link" href="{{ url('/'. $bidang->bidang_prefix . '/folder/') }}">
+                            <a class="nav-link side-link" @if (is_null(Session::get('move_folderId')) && is_null(Session::get('move_fileId')))
+                                href="{{ url('/'. $bidang->bidang_prefix . '/folder/') }}
+                            @endif">
                         @endif
                             <span class="mr-2" data-feather="folder"></span>
                                 {{ $bidang->bidang_name }}

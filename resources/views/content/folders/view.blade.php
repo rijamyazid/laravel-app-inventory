@@ -5,7 +5,7 @@
 
     {{-- OPSI ATAS --}}
     <div class="row mt-3">
-    @if (Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix)
+    @if ((Session::get('rolePrefix') == 'super_admin' || Session::get('rolePrefix') == $bidangPrefix) && (is_null(Session::get('move_folderId')) && is_null(Session::get('move_fileId'))))
         {{-- TOMBOL TAMBAH FOLDER --}}
         <div class="col-md-auto col-sm mx-auto mb-2">
             <a href="#" class="btn btn-success btn-block" id="btn-tambah-folder">
@@ -71,24 +71,24 @@
     <div class="row">
         @if (!is_null(Session::get('move_folderId')))
             <div class="col-md-2 col-sm">
-                <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                <a href="{{ url("/$bidangPrefix/moving/folder/$urlPath") }}" class="btn btn-success btn-block">
                     Pindahkan
                 </a>
             </div>
             <div class="col-md-2 col-sm">
-                <a href="{{ url("/$bidangPrefix/movingCancel/folder/$urlPath") }}" class="btn btn-danger btn-block" id="btn-tambah-file">
+                <a href="{{ url("/$bidangPrefix/movingCancel/folder/$urlPath") }}" class="btn btn-danger btn-block">
                     Batalkan
                 </a>
             </div>
         @endif
         @if (!is_null(Session::get('move_fileId')))
             <div class="col-md-2 col-sm">
-                <a href="{{ url("/$bidangPrefix/moving/file/$urlPath") }}" class="btn btn-success btn-block" id="btn-tambah-file">
+                <a href="{{ url("/$bidangPrefix/moving/file/$urlPath") }}" class="btn btn-success btn-block">
                     Pindahkan
                 </a>
             </div>
             <div class="col-md-2 col-sm">
-                <a href="{{ url("/$bidangPrefix/movingCancel/file/$urlPath") }}" class="btn btn-danger btn-block" id="btn-tambah-file">
+                <a href="{{ url("/$bidangPrefix/movingCancel/file/$urlPath") }}" class="btn btn-danger btn-block">
                     Batalkan
                 </a>
             </div>
